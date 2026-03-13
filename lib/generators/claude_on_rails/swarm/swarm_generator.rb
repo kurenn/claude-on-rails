@@ -29,6 +29,12 @@ module ClaudeOnRails
       class_option :regenerate, type: :boolean, default: false,
                                 desc: 'Re-run detection and update config without overwriting customized prompts'
 
+      class_option :model, type: :string, default: 'opus',
+                           desc: 'Default Claude model for agents (opus, sonnet)'
+
+      class_option :cost_optimized, type: :boolean, default: false,
+                                    desc: 'Use sonnet for less complex agents to reduce cost'
+
       def analyze_project
         say 'Analyzing Rails project structure...', :green
         @project_analysis = ClaudeOnRails.analyze_project(Rails.root)
@@ -52,6 +58,17 @@ module ClaudeOnRails
         # Check for BooRails security skills
         @has_boorails = ClaudeOnRails::BoorailsSupport.available?
 
+        # Model configuration
+        @default_model = options[:model]
+        @agent_models = {}
+
+        if options[:cost_optimized]
+          sonnet_agents = %w[devops jobs stimulus tailwind]
+          agents.each do |agent|
+            @agent_models[agent] = sonnet_agents.include?(agent) ? 'sonnet' : 'opus'
+          end
+        end
+
         say "Project type: #{@api_only ? 'API-only' : 'Full-stack Rails'}", :cyan
         say "Test framework: #{@test_framework}", :cyan if @test_framework
         say "GraphQL detected: #{@has_graphql ? 'Yes' : 'No'}", :cyan
@@ -67,10 +84,16 @@ module ClaudeOnRails
         # Suggest BooRails installation if not available
         suggest_boorails_setup unless @has_boorails
 
+        # Show model configuration
+        say "Default model: #{@default_model}", :cyan
+        say 'Cost-optimized mode: enabled (sonnet for less complex agents)', :cyan if options[:cost_optimized]
+
         # Show which agents will be created
         say "\nAgents to be created:", :yellow
         agents.each do |agent|
-          say "  - #{agent}", :cyan
+          agent_model = @agent_models[agent] || @default_model
+          model_label = agent_model == @default_model ? '' : " (#{agent_model})"
+          say "  - #{agent}#{model_label}", :cyan
         end
       end
 
