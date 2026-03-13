@@ -14,6 +14,7 @@ RSpec.describe ClaudeOnRails::SwarmBuilder do
       has_boorails: false,
       has_tailwind: false,
       has_view_component: false,
+      has_i18n: false,
       javascript_framework: nil,
       database: 'sqlite3',
       deployment: nil,

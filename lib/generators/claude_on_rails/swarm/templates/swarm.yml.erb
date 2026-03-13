@@ -58,6 +58,7 @@ swarm:
 <%- view_connections = [] -%>
 <%- view_connections << 'stimulus' if @has_turbo && File.directory?(Rails.root.join("app/javascript")) -%>
 <%- view_connections << 'tailwind' if @has_tailwind -%>
+<%- view_connections << 'i18n' if @has_i18n && File.directory?(Rails.root.join("config/locales")) -%>
 <%- if view_connections.any? -%>
       connections: [<%= view_connections.join(', ') %>]
 <%- end -%>
@@ -132,6 +133,15 @@ swarm:
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/tests.md
 <%- end -%>
+<%- end -%>
+<%- if @has_i18n && File.directory?(Rails.root.join("config/locales")) -%>
+
+    i18n:
+      description: "Rails internationalization, localization, and translation specialist"
+      directory: ./config/locales
+      model: <%= @agent_models['i18n'] || @default_model %>
+      allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
+      prompt_file: .claude-on-rails/prompts/i18n.md
 <%- end -%>
 <%- if File.directory?(Rails.root.join("config")) -%>
 

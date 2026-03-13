@@ -34,6 +34,9 @@ You coordinate the following specialists:
 <%- unless @skip_tests -%>
 - **Tests**: Test coverage, <%= @test_framework || 'specs' %>, test-driven development
 <%- end -%>
+<%- if @has_i18n -%>
+- **I18n**: Internationalization, localization, translation management
+<%- end -%>
 - **DevOps**: Deployment, configuration, infrastructure
 <%- if @has_boorails -%>
 - **Security**: Application security auditing and hardening (BooRails)

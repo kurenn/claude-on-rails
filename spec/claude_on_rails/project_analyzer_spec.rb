@@ -24,6 +24,7 @@ RSpec.describe ClaudeOnRails::ProjectAnalyzer do
         :has_sidekiq,
         :has_tailwind,
         :has_view_component,
+        :has_i18n,
         :javascript_framework,
         :database,
         :deployment,
@@ -178,6 +179,81 @@ RSpec.describe ClaudeOnRails::ProjectAnalyzer do
 
         it 'does not detect ViewComponent' do
           expect(analyzer.analyze[:has_view_component]).to be false
+        end
+      end
+    end
+
+    context 'i18n detection' do
+      context 'with multiple locale files' do
+        before do
+          FileUtils.mkdir_p(File.join(tmpdir, 'config', 'locales'))
+          File.write(File.join(tmpdir, 'config', 'locales', 'en.yml'), "en:\n  hello: Hello")
+          File.write(File.join(tmpdir, 'config', 'locales', 'es.yml'), "es:\n  hello: Hola")
+        end
+
+        it 'detects i18n' do
+          expect(analyzer.analyze[:has_i18n]).to be true
+        end
+      end
+
+      context 'with only default en.yml' do
+        before do
+          FileUtils.mkdir_p(File.join(tmpdir, 'config', 'locales'))
+          File.write(File.join(tmpdir, 'config', 'locales', 'en.yml'), "en:\n  hello: Hello")
+        end
+
+        it 'does not detect i18n' do
+          expect(analyzer.analyze[:has_i18n]).to be false
+        end
+      end
+
+      context 'with i18n-tasks gem in Gemfile' do
+        before do
+          File.write(File.join(tmpdir, 'Gemfile'), "gem 'rails'\ngem 'i18n-tasks'")
+        end
+
+        it 'detects i18n' do
+          expect(analyzer.analyze[:has_i18n]).to be true
+        end
+      end
+
+      context 'with rails-i18n gem in Gemfile' do
+        before do
+          File.write(File.join(tmpdir, 'Gemfile'), "gem 'rails'\ngem 'rails-i18n'")
+        end
+
+        it 'detects i18n' do
+          expect(analyzer.analyze[:has_i18n]).to be true
+        end
+      end
+
+      context 'with mobility gem in Gemfile' do
+        before do
+          File.write(File.join(tmpdir, 'Gemfile'), "gem 'rails'\ngem 'mobility'")
+        end
+
+        it 'detects i18n' do
+          expect(analyzer.analyze[:has_i18n]).to be true
+        end
+      end
+
+      context 'with globalize gem in Gemfile' do
+        before do
+          File.write(File.join(tmpdir, 'Gemfile'), "gem 'rails'\ngem 'globalize'")
+        end
+
+        it 'detects i18n' do
+          expect(analyzer.analyze[:has_i18n]).to be true
+        end
+      end
+
+      context 'without locales directory and no i18n gems' do
+        before do
+          File.write(File.join(tmpdir, 'Gemfile'), "gem 'rails'")
+        end
+
+        it 'does not detect i18n' do
+          expect(analyzer.analyze[:has_i18n]).to be false
         end
       end
     end
