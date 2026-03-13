@@ -34,6 +34,7 @@ module ClaudeOnRails
         @api_only = options[:api_only] || @project_analysis[:api_only]
         @has_graphql = options[:graphql] || @project_analysis[:has_graphql]
         @has_turbo = options[:turbo] && !@api_only
+        @has_view_component = @project_analysis[:has_view_component]
         @skip_tests = options[:skip_tests]
         @test_framework = @project_analysis[:test_framework]
 
@@ -52,6 +53,7 @@ module ClaudeOnRails
         say "Test framework: #{@test_framework}", :cyan if @test_framework
         say "GraphQL detected: #{@has_graphql ? 'Yes' : 'No'}", :cyan
         say "Tailwind CSS detected: #{@has_tailwind ? 'Yes' : 'No'}", :cyan
+        say "ViewComponent detected: #{@has_view_component ? 'Yes' : 'No'}", :cyan
         say "Rails MCP Server: #{@include_mcp_server ? 'Available' : 'Not available'}", :cyan
         say "Rails Dev MCP: #{@include_dev_mcp ? 'Available' : 'Not available'}", :cyan
         say "BooRails Security: #{@has_boorails ? 'Available' : 'Not installed'}", :cyan

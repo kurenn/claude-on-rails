@@ -52,7 +52,7 @@ swarm:
 <%- if !@api_only && File.directory?(Rails.root.join("app/views")) -%>
 
     views:
-      description: "Rails views, layouts, partials, and asset pipeline specialist"
+      description: "Rails views, layouts, partials,<%= @has_view_component ? ' ViewComponent,' : '' %> and asset pipeline specialist"
       directory: ./app/views
       model: opus
 <%- view_connections = [] -%>

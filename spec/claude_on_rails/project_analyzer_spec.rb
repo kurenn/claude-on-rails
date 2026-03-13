@@ -23,6 +23,7 @@ RSpec.describe ClaudeOnRails::ProjectAnalyzer do
         :has_devise,
         :has_sidekiq,
         :has_tailwind,
+        :has_view_component,
         :javascript_framework,
         :database,
         :deployment,
@@ -145,6 +146,39 @@ RSpec.describe ClaudeOnRails::ProjectAnalyzer do
 
       it 'returns false when no Tailwind is present' do
         expect(analyzer.analyze[:has_tailwind]).to be false
+      end
+    end
+
+    context 'ViewComponent detection' do
+      context 'with view_component in Gemfile' do
+        before do
+          File.write(File.join(tmpdir, 'Gemfile'), "gem 'rails'\ngem 'view_component'")
+        end
+
+        it 'detects ViewComponent' do
+          expect(analyzer.analyze[:has_view_component]).to be true
+        end
+      end
+
+      context 'with app/components directory' do
+        before do
+          File.write(File.join(tmpdir, 'Gemfile'), "gem 'rails'")
+          FileUtils.mkdir_p(File.join(tmpdir, 'app', 'components'))
+        end
+
+        it 'detects ViewComponent' do
+          expect(analyzer.analyze[:has_view_component]).to be true
+        end
+      end
+
+      context 'without view_component' do
+        before do
+          File.write(File.join(tmpdir, 'Gemfile'), "gem 'rails'")
+        end
+
+        it 'does not detect ViewComponent' do
+          expect(analyzer.analyze[:has_view_component]).to be false
+        end
       end
     end
 

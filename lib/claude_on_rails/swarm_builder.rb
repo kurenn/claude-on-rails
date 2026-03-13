@@ -106,8 +106,14 @@ module ClaudeOnRails
       connections << 'stimulus' if project_analysis[:has_turbo]
       connections << 'tailwind' if project_analysis[:has_tailwind]
 
+      description = if project_analysis[:has_view_component]
+                      'Rails views, layouts, partials, ViewComponent, and asset pipeline specialist'
+                    else
+                      'Rails views, layouts, partials, and asset pipeline specialist'
+                    end
+
       {
-        description: 'Rails views, layouts, partials, and asset pipeline specialist',
+        description: description,
         directory: './app/views',
         model: ClaudeOnRails.configuration.default_model,
         connections: connections.empty? ? nil : connections,
