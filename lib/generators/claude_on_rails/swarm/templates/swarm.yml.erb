@@ -127,3 +127,12 @@ swarm:
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/devops.md
 <%- end -%>
+<%- if @has_boorails -%>
+
+    security:
+      description: "Application security auditing specialist powered by BooRails"
+      directory: .
+      model: opus
+      allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
+      prompt_file: .claude-on-rails/prompts/security.md
+<%- end -%>

@@ -43,14 +43,21 @@ module ClaudeOnRails
         # Check for Rails Dev MCP
         @include_dev_mcp = options[:dev_mcp] && check_rails_dev_mcp_availability
 
+        # Check for BooRails security skills
+        @has_boorails = ClaudeOnRails::BoorailsSupport.available?
+
         say "Project type: #{@api_only ? 'API-only' : 'Full-stack Rails'}", :cyan
         say "Test framework: #{@test_framework}", :cyan if @test_framework
         say "GraphQL detected: #{@has_graphql ? 'Yes' : 'No'}", :cyan
         say "Rails MCP Server: #{@include_mcp_server ? 'Available' : 'Not available'}", :cyan
         say "Rails Dev MCP: #{@include_dev_mcp ? 'Available' : 'Not available'}", :cyan
+        say "BooRails Security: #{@has_boorails ? 'Available' : 'Not installed'}", :cyan
 
         # Offer MCP setup if enabled but not available
         offer_mcp_setup if options[:mcp_server] && !@include_mcp_server
+
+        # Suggest BooRails installation if not available
+        suggest_boorails_setup unless @has_boorails
 
         # Show which agents will be created
         say "\nAgents to be created:", :yellow
@@ -158,6 +165,7 @@ module ClaudeOnRails
         end
 
         list << 'devops' if File.directory?(Rails.root.join('config'))
+        list << 'security' if @has_boorails
         list
       end
 
@@ -180,6 +188,16 @@ module ClaudeOnRails
         else
           say "\nYou can set it up later with: bundle exec rake claude_on_rails:setup_mcp", :cyan
         end
+      end
+
+      def suggest_boorails_setup
+        say "\nBooRails Security Enhancement Available!", :yellow
+        say "BooRails provides deep security auditing for your Rails app (XSS, SQLi, CSRF, and more).", :cyan
+        say "Install it with:", :cyan
+        say "  bash -lc 'REPO=\"$HOME/.boorails\"; " \
+            '[ -d "$REPO/.git" ] || git clone https://github.com/kurenn/boorails.git "$REPO"; ' \
+            "\"$REPO\"/install_skills_codex_claude.sh --target claude --force'", :cyan
+        say "Then re-run: rails generate claude_on_rails:swarm", :cyan
       end
 
       def check_rails_dev_mcp_availability

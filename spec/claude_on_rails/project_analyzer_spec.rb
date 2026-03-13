@@ -25,7 +25,8 @@ RSpec.describe ClaudeOnRails::ProjectAnalyzer do
         :javascript_framework,
         :database,
         :deployment,
-        :custom_patterns
+        :custom_patterns,
+        :has_boorails
       )
     end
 
