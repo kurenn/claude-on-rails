@@ -22,6 +22,7 @@ RSpec.describe ClaudeOnRails::ProjectAnalyzer do
         :has_turbo,
         :has_devise,
         :has_sidekiq,
+        :has_tailwind,
         :javascript_framework,
         :database,
         :deployment,
@@ -99,6 +100,44 @@ RSpec.describe ClaudeOnRails::ProjectAnalyzer do
         it 'detects Devise' do
           expect(analyzer.analyze[:has_devise]).to be true
         end
+      end
+
+      context 'with Tailwind via tailwindcss-rails gem' do
+        let(:gemfile_content) { "gem 'rails'\ngem 'tailwindcss-rails'" }
+
+        it 'detects Tailwind' do
+          expect(analyzer.analyze[:has_tailwind]).to be true
+        end
+      end
+
+      context 'with Tailwind via tailwindcss-ruby gem' do
+        let(:gemfile_content) { "gem 'rails'\ngem 'tailwindcss-ruby'" }
+
+        it 'detects Tailwind' do
+          expect(analyzer.analyze[:has_tailwind]).to be true
+        end
+      end
+    end
+
+    context 'Tailwind detection via config files' do
+      it 'detects config/tailwind.config.js' do
+        FileUtils.mkdir_p(File.join(tmpdir, 'config'))
+        File.write(File.join(tmpdir, 'config', 'tailwind.config.js'), '{}')
+        expect(analyzer.analyze[:has_tailwind]).to be true
+      end
+
+      it 'detects tailwind.config.js at root' do
+        File.write(File.join(tmpdir, 'tailwind.config.js'), '{}')
+        expect(analyzer.analyze[:has_tailwind]).to be true
+      end
+
+      it 'detects tailwind.config.ts at root' do
+        File.write(File.join(tmpdir, 'tailwind.config.ts'), '{}')
+        expect(analyzer.analyze[:has_tailwind]).to be true
+      end
+
+      it 'returns false when no Tailwind is present' do
+        expect(analyzer.analyze[:has_tailwind]).to be false
       end
     end
 

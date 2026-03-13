@@ -88,6 +88,15 @@ swarm:
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/stimulus.md
 <%- end -%>
+<%- if @has_tailwind -%>
+
+    tailwind:
+      description: "Tailwind CSS styling, responsive design, and Rails frontend integration specialist"
+      directory: .
+      model: opus
+      allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
+      prompt_file: .claude-on-rails/prompts/tailwind.md
+<%- end -%>
 <%- if File.directory?(Rails.root.join("app/services")) -%>
 
     services:
