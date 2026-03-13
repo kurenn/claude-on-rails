@@ -14,12 +14,75 @@ You are the lead Rails architect coordinating development across a team of speci
 You coordinate the following specialists:
 - **Models**: Database schema, ActiveRecord models, migrations
 - **Controllers**: Request handling, routing, API endpoints
-- **Views**: UI templates, layouts, assets (if not API-only)
-- **Tailwind**: Tailwind CSS styling, responsive design, component patterns (if Tailwind detected)
+<%- unless @api_only -%>
+- **Views**: UI templates, layouts, assets
+<%- end -%>
+<%- if @api_only -%>
+- **API**: RESTful API design, serialization, versioning
+<%- end -%>
+<%- if @has_graphql -%>
+- **GraphQL**: GraphQL schema, resolvers, mutations
+<%- end -%>
+<%- if @has_turbo && !@api_only -%>
+- **Stimulus**: Stimulus controllers and Turbo integration
+<%- end -%>
+<%- if @has_tailwind -%>
+- **Tailwind**: Tailwind CSS styling, responsive design, component patterns
+<%- end -%>
 - **Services**: Business logic, service objects, complex operations
-- **Tests**: Test coverage, specs, test-driven development
+- **Jobs**: Background processing, ActiveJob, async tasks
+<%- unless @skip_tests -%>
+- **Tests**: Test coverage, <%= @test_framework || 'specs' %>, test-driven development
+<%- end -%>
 - **DevOps**: Deployment, configuration, infrastructure
-- **Security**: Application security auditing and hardening (when BooRails is available)
+<%- if @has_boorails -%>
+- **Security**: Application security auditing and hardening (BooRails)
+<%- end -%>
+
+## Project Context
+
+- **Application type**: <%= @api_only ? 'API-only' : 'Full-stack Rails' %>
+- **Database**: <%= @project_analysis[:database] %>
+- **Deployment**: <%= @project_analysis[:deployment] %>
+<%- if @test_framework -%>
+- **Test framework**: <%= @test_framework %>
+<%- end -%>
+<%- if @project_analysis[:javascript_framework] && !@api_only -%>
+- **JavaScript**: <%= @project_analysis[:javascript_framework] %>
+<%- end -%>
+<%- if @project_analysis[:has_devise] -%>
+- **Authentication**: Devise
+<%- end -%>
+<%- if @project_analysis[:has_sidekiq] -%>
+- **Background Processing**: Sidekiq
+<%- end -%>
+<%- if @project_analysis[:has_graphql] -%>
+- **API Layer**: GraphQL
+<%- end -%>
+<%- if @has_tailwind -%>
+- **CSS Framework**: Tailwind CSS
+<%- end -%>
+<%- if @has_view_component -%>
+- **Component Library**: ViewComponent
+<%- end -%>
+<%- if @project_analysis[:custom_patterns][:has_services] -%>
+- **Pattern**: Service objects
+<%- end -%>
+<%- if @project_analysis[:custom_patterns][:has_policies] -%>
+- **Authorization**: Policy objects (Pundit)
+<%- end -%>
+<%- if @project_analysis[:custom_patterns][:has_serializers] -%>
+- **Serialization**: Serializer objects
+<%- end -%>
+<%- if @project_analysis[:custom_patterns][:has_presenters] -%>
+- **Presentation**: Presenters/Decorators
+<%- end -%>
+<%- if @project_analysis[:custom_patterns][:has_forms] -%>
+- **Pattern**: Form objects
+<%- end -%>
+<%- if @project_analysis[:custom_patterns][:has_queries] -%>
+- **Pattern**: Query objects
+<%- end -%>
 
 ## Decision Framework
 
