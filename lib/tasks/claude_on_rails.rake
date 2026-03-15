@@ -44,4 +44,43 @@ namespace :claude_on_rails do
     require 'claude_on_rails/status_display'
     ClaudeOnRails::StatusDisplay.new(Rails.root).show_agents
   end
+
+  desc 'Detect and fix known issues in claude-swarm.yml from older versions'
+  task upgrade: :environment do
+    require 'claude_on_rails/upgrader'
+
+    puts "ClaudeOnRails Upgrade"
+    puts "====================="
+    puts "Checking claude-swarm.yml..."
+    puts
+
+    upgrader = ClaudeOnRails::Upgrader.new(Rails.root)
+    report = upgrader.run
+
+    fixes = report[:fixes]
+    issues = report[:issues]
+    total = fixes.size + issues.size
+
+    if total.zero?
+      puts "No issues found. Your configuration is up to date!"
+    else
+      puts "Found #{total} issue#{'s' if total != 1}:"
+      fixes.each { |fix| puts "  \u2713 Fixed: #{fix}" }
+      issues.each do |issue|
+        prefix = case issue[:type]
+                 when :warning then "\u26A0 Warning"
+                 when :suggestion then "\u26A0 Info"
+                 else "\u2717 Error"
+                 end
+        puts "  #{prefix}: #{issue[:message]}"
+      end
+    end
+
+    if report[:config_modified]
+      upgrader.apply!
+      puts
+      puts "Backup saved to: claude-swarm.yml.backup"
+      puts "Updated: claude-swarm.yml"
+    end
+  end
 end
