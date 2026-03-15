@@ -126,8 +126,7 @@ module ClaudeOnRails
         # Create .gitignore if it doesn't exist
         create_file '.gitignore', '' unless File.exist?(gitignore_path)
 
-        append_to_file '.gitignore',
-                       "\n# ClaudeOnRails\n.claude-on-rails/sessions/\n.claude-swarm/\nclaude-swarm.log\ntasks/\n"
+        append_to_file '.gitignore', "\n# ClaudeOnRails\n.claude-on-rails/sessions/\n.claude-swarm/\nclaude-swarm.log\n"
       end
 
       def display_next_steps
