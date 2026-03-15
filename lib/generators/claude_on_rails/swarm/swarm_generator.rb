@@ -66,7 +66,7 @@ module ClaudeOnRails
         @agent_models = {}
 
         if options[:cost_optimized]
-          sonnet_agents = %w[devops jobs stimulus tailwind]
+          sonnet_agents = %w[devops jobs stimulus tailwind database]
           agents.each do |agent|
             @agent_models[agent] = sonnet_agents.include?(agent) ? 'sonnet' : 'opus'
           end
@@ -81,6 +81,7 @@ module ClaudeOnRails
         say "Rails MCP Server: #{@include_mcp_server ? 'Available' : 'Not available'}", :cyan
         say "Rails Dev MCP: #{@include_dev_mcp ? 'Available' : 'Not available'}", :cyan
         say "MCP distribution: #{@include_mcp_server ? 'architect, models, controllers, views, tests' : 'N/A'}", :cyan
+        say "Database agent: Enabled (#{@project_analysis[:database]})", :cyan
         say "BooRails Security: #{@has_boorails ? 'Available' : 'Not installed'}", :cyan
 
         # Offer MCP setup if enabled but not available
@@ -235,6 +236,7 @@ module ClaudeOnRails
       def build_agent_list
         list = ['architect']
         list << 'models' if File.directory?(Rails.root.join('app/models'))
+        list << 'database'
         list << 'controllers' if File.directory?(Rails.root.join('app/controllers'))
         list << 'views' if !@api_only && File.directory?(Rails.root.join('app/views'))
         list << 'api' if @api_only && File.directory?(Rails.root.join('app/controllers/api'))

@@ -33,6 +33,7 @@ module ClaudeOnRails
 
       # Core agents
       instances[:models] = build_models_agent
+      instances[:database] = build_database_agent
       instances[:controllers] = build_controllers_agent
 
       # Conditional agents
@@ -62,7 +63,7 @@ module ClaudeOnRails
     end
 
     def build_architect
-      connections = %w[models controllers]
+      connections = %w[models controllers database]
       connections << 'views' unless project_analysis[:api_only]
       connections << 'api' if project_analysis[:api_only]
       connections << 'graphql' if project_analysis[:has_graphql]
@@ -89,8 +90,20 @@ module ClaudeOnRails
         description: 'ActiveRecord models, migrations, and database optimization specialist',
         directory: './app/models',
         model: model_for('models'),
+        connections: ['database'],
         allowed_tools: %w[Read Edit Write Bash Grep Glob LS],
         prompt_file: '.claude-on-rails/prompts/models.md'
+      }
+    end
+
+    def build_database_agent
+      {
+        description: 'Database schema design, query optimization, and N+1 detection specialist',
+        directory: '.',
+        model: model_for('database'),
+        connections: ['models'],
+        allowed_tools: %w[Read Bash Grep Glob LS],
+        prompt_file: '.claude-on-rails/prompts/database.md'
       }
     end
 

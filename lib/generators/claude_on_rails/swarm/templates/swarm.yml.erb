@@ -31,6 +31,7 @@ swarm:
       description: "ActiveRecord models, migrations, and database optimization specialist"
       directory: ./app/models
       model: <%= @agent_models['models'] || @default_model %>
+      connections: [database]
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/models.md
 <%- if @include_mcp_server -%>
@@ -43,6 +44,14 @@ swarm:
             RAILS_ENV: <%= Rails.env %>
 <%- end -%>
 <%- end -%>
+
+    database:
+      description: "Database schema design, query optimization, and N+1 detection specialist"
+      directory: .
+      model: <%= @agent_models['database'] || @default_model %>
+      connections: [models]
+      allowed_tools: [Read, Bash, Grep, Glob, LS]
+      prompt_file: .claude-on-rails/prompts/database.md
 <%- if File.directory?(Rails.root.join("app/controllers")) -%>
 
     controllers:
