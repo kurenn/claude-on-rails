@@ -41,14 +41,20 @@ Gem::Specification.new do |spec|
     ========================================================================
     🚀 ClaudeOnRails has been successfully installed!
 
+    ⚠️  Upgrading from 0.x? Regenerate your swarm config:
+      rails generate claude_on_rails:swarm --regenerate
+
+    This is needed because:
+      • claude_swarm 1.0.x is now required
+      • MCP servers are now correctly placed at the instance level
+        (previously they were at the swarm level and silently ignored)
+
+    Your customized prompt files will be preserved with --regenerate.
+
     For enhanced Rails documentation access, you can set up Rails MCP Server:
       bundle exec rake claude_on_rails:setup_mcp
 
-    This optional setup will:
-      • Install the Rails MCP Server gem
-      • Enable real-time documentation access for your AI agents
-
-    Get started:
+    Get started (new projects):
       rails generate claude_on_rails:swarm
 
     ========================================================================
