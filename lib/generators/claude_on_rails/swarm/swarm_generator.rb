@@ -26,6 +26,9 @@ module ClaudeOnRails
       class_option :dev_mcp, type: :boolean, default: true,
                              desc: 'Include Rails Dev MCP Server for development server management'
 
+      class_option :regenerate, type: :boolean, default: false,
+                                desc: 'Re-run detection and update config without overwriting customized prompts'
+
       def analyze_project
         say 'Analyzing Rails project structure...', :green
         @project_analysis = ClaudeOnRails.analyze_project(Rails.root)
@@ -77,8 +80,19 @@ module ClaudeOnRails
       end
 
       def create_claude_md
-        # Always create the ClaudeOnRails context file
+        # Always create/update the ClaudeOnRails context file
         template 'claude_on_rails_context.md', '.claude-on-rails/context.md'
+
+        # In regenerate mode, skip CLAUDE.md entirely (user has likely customized it)
+        if options[:regenerate]
+          if File.exist?('CLAUDE.md')
+            say 'Skipping CLAUDE.md (regenerate mode preserves user content)', :yellow
+          else
+            say 'Creating CLAUDE.md configuration...', :green
+            template 'CLAUDE.md.erb', 'CLAUDE.md'
+          end
+          return
+        end
 
         if File.exist?('CLAUDE.md')
           say 'CLAUDE.md already exists - adding ClaudeOnRails file reference...', :yellow
@@ -111,6 +125,25 @@ module ClaudeOnRails
           destination_filename = filename.sub(/\.erb\z/, '')
           destination_path = File.join(dest_dir, destination_filename)
 
+          if options[:regenerate] && File.exist?(destination_path)
+            # Generate what the template would produce and compare with existing
+            fresh_content = if filename.end_with?('.erb')
+                              # Render ERB template to get fresh content
+                              source = File.join(self.class.source_root, relative_source)
+                              context = instance_eval('binding', __FILE__, __LINE__)
+                              ERB.new(File.read(source), trim_mode: '-').result(context)
+                            else
+                              File.read(source_path)
+                            end
+
+            existing_content = File.read(destination_path)
+
+            if existing_content != fresh_content
+              say "Skipping #{destination_filename} (customized)", :yellow
+              next
+            end
+          end
+
           if filename.end_with?('.erb')
             template relative_source, destination_path
           else
@@ -126,15 +159,37 @@ module ClaudeOnRails
         # Create .gitignore if it doesn't exist
         create_file '.gitignore', '' unless File.exist?(gitignore_path)
 
-        append_to_file '.gitignore', "\n# ClaudeOnRails\n.claude-on-rails/sessions/\n.claude-swarm/\nclaude-swarm.log\n"
+        gitignore_entries = {
+          '.claude-on-rails/sessions/' => '.claude-on-rails/sessions/',
+          '.claude-swarm/' => '.claude-swarm/',
+          'claude-swarm.log' => 'claude-swarm.log'
+        }
+
+        if File.exist?(gitignore_path)
+          existing_content = File.read(gitignore_path)
+          entries_to_add = gitignore_entries.values.reject { |entry| existing_content.include?(entry) }
+
+          if entries_to_add.empty?
+            say 'All .gitignore entries already present', :green
+          else
+            block = "\n# ClaudeOnRails\n#{entries_to_add.join("\n")}\n"
+            append_to_file '.gitignore', block
+          end
+        else
+          append_to_file '.gitignore',
+                         "\n# ClaudeOnRails\n.claude-on-rails/sessions/\n.claude-swarm/\nclaude-swarm.log\n"
+        end
       end
 
       def display_next_steps
-        say "\n✅ ClaudeOnRails swarm configuration created!", :green
+        if options[:regenerate]
+          say "\nSwarm configuration regenerated!", :green
+          say 'Customized prompt files were preserved.', :cyan
+        else
+          say "\nClaudeOnRails swarm configuration created!", :green
+        end
+
         say "\nNext steps:", :yellow
-
-        # Remove this section since we now handle it interactively in analyze_project
-
         say '1. Review and customize claude-swarm.yml for your project'
         say '2. Start your Rails development swarm:'
         say '   claude-swarm', :cyan
