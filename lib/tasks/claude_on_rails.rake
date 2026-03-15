@@ -119,4 +119,54 @@ namespace :claude_on_rails do
 
     exit 1 if errors.positive?
   end
+
+  desc 'List all swarm sessions with date and size'
+  task sessions: :environment do
+    require 'claude_on_rails/session_manager'
+    manager = ClaudeOnRails::SessionManager.new(Rails.root)
+    all_sessions = manager.sessions
+
+    puts 'ClaudeOnRails Sessions'
+    puts '======================'
+
+    if all_sessions.empty?
+      puts '  No sessions found.'
+    else
+      all_sessions.each_with_index do |session, index|
+        date_str = session[:date].strftime('%Y-%m-%d %H:%M')
+        size_str = manager.format_size(session[:size_bytes])
+        puts format('  %<num>d. %<date>s  %<name>s  (%<size>s)', num: index + 1, date: date_str, name: session[:name],
+                                                                 size: size_str)
+      end
+    end
+
+    puts
+    puts "Total: #{all_sessions.length} sessions, #{manager.format_size(manager.total_size)}"
+  end
+
+  namespace :sessions do
+    desc 'Remove old sessions (set KEEP=N, default 5; or DAYS=N to remove by age)'
+    task cleanup: :environment do
+      require 'claude_on_rails/session_manager'
+      manager = ClaudeOnRails::SessionManager.new(Rails.root)
+
+      removed = if ENV['DAYS']
+                  manager.cleanup_older_than(days: ENV['DAYS'].to_i)
+                else
+                  keep = (ENV['KEEP'] || 5).to_i
+                  manager.cleanup(keep: keep)
+                end
+
+      puts "Removed #{removed} session(s)."
+    end
+
+    desc 'Show total disk usage of swarm sessions'
+    task size: :environment do
+      require 'claude_on_rails/session_manager'
+      manager = ClaudeOnRails::SessionManager.new(Rails.root)
+
+      puts "Total session disk usage: #{manager.format_size(manager.total_size)}"
+      puts "Sessions: #{manager.sessions.length}"
+    end
+  end
 end
