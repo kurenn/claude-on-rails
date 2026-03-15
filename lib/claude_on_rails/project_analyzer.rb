@@ -17,6 +17,7 @@ module ClaudeOnRails
         has_devise: devise?,
         has_sidekiq: sidekiq?,
         has_tailwind: tailwind?,
+        has_view_component: view_component?,
         javascript_framework: detect_javascript_framework,
         database: detect_database,
         deployment: detect_deployment_method,
@@ -87,6 +88,14 @@ module ClaudeOnRails
         File.exist?(File.join(root_path, 'tailwind.config.js')) ||
         File.exist?(File.join(root_path, 'tailwind.config.ts')) ||
         File.exist?(File.join(root_path, 'app', 'assets', 'stylesheets', 'application.tailwind.css'))
+    end
+
+    def view_component?
+      gemfile_path = File.join(root_path, 'Gemfile')
+      return false unless File.exist?(gemfile_path)
+
+      File.read(gemfile_path).include?('view_component') ||
+        File.directory?(File.join(root_path, 'app', 'components'))
     end
 
     def detect_javascript_framework
