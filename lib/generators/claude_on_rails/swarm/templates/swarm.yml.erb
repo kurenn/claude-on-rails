@@ -55,8 +55,11 @@ swarm:
       description: "Rails views, layouts, partials, and asset pipeline specialist"
       directory: ./app/views
       model: opus
-<%- if @has_turbo && File.directory?(Rails.root.join("app/javascript")) -%>
-      connections: [stimulus]
+<%- view_connections = [] -%>
+<%- view_connections << 'stimulus' if @has_turbo && File.directory?(Rails.root.join("app/javascript")) -%>
+<%- view_connections << 'tailwind' if @has_tailwind -%>
+<%- if view_connections.any? -%>
+      connections: [<%= view_connections.join(', ') %>]
 <%- end -%>
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/views.md
@@ -87,6 +90,18 @@ swarm:
       model: opus
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/stimulus.md
+<%- end -%>
+<%- if @has_tailwind -%>
+
+    tailwind:
+      description: "Tailwind CSS styling, responsive design, and Rails frontend integration specialist"
+      directory: .
+      model: opus
+<%- tailwind_connections = ['views'] -%>
+<%- tailwind_connections << 'stimulus' if @has_turbo && File.directory?(Rails.root.join("app/javascript")) -%>
+      connections: [<%= tailwind_connections.join(', ') %>]
+      allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
+      prompt_file: .claude-on-rails/prompts/tailwind.md
 <%- end -%>
 <%- if File.directory?(Rails.root.join("app/services")) -%>
 

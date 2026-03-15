@@ -37,6 +37,8 @@ module ClaudeOnRails
         @skip_tests = options[:skip_tests]
         @test_framework = @project_analysis[:test_framework]
 
+        @has_tailwind = @project_analysis[:has_tailwind] && !@api_only
+
         # Check for Rails MCP Server
         @include_mcp_server = options[:mcp_server] && ClaudeOnRails::MCPSupport.available?
 
@@ -49,6 +51,7 @@ module ClaudeOnRails
         say "Project type: #{@api_only ? 'API-only' : 'Full-stack Rails'}", :cyan
         say "Test framework: #{@test_framework}", :cyan if @test_framework
         say "GraphQL detected: #{@has_graphql ? 'Yes' : 'No'}", :cyan
+        say "Tailwind CSS detected: #{@has_tailwind ? 'Yes' : 'No'}", :cyan
         say "Rails MCP Server: #{@include_mcp_server ? 'Available' : 'Not available'}", :cyan
         say "Rails Dev MCP: #{@include_dev_mcp ? 'Available' : 'Not available'}", :cyan
         say "BooRails Security: #{@has_boorails ? 'Available' : 'Not installed'}", :cyan
@@ -152,6 +155,7 @@ module ClaudeOnRails
         list << 'api' if @api_only && File.directory?(Rails.root.join('app/controllers/api'))
         list << 'graphql' if @has_graphql && File.directory?(Rails.root.join('app/graphql'))
         list << 'stimulus' if @has_turbo && File.directory?(Rails.root.join('app/javascript'))
+        list << 'tailwind' if @has_tailwind
         list << 'services' if File.directory?(Rails.root.join('app/services'))
         list << 'jobs' if File.directory?(Rails.root.join('app/jobs'))
 

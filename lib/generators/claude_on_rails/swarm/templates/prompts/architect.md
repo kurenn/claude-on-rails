@@ -15,6 +15,7 @@ You coordinate the following specialists:
 - **Models**: Database schema, ActiveRecord models, migrations
 - **Controllers**: Request handling, routing, API endpoints
 - **Views**: UI templates, layouts, assets (if not API-only)
+- **Tailwind**: Tailwind CSS styling, responsive design, component patterns (if Tailwind detected)
 - **Services**: Business logic, service objects, complex operations
 - **Tests**: Test coverage, specs, test-driven development
 - **DevOps**: Deployment, configuration, infrastructure

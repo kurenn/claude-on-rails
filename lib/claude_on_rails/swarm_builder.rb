@@ -40,6 +40,8 @@ module ClaudeOnRails
 
       instances[:stimulus] = build_stimulus_agent if project_analysis[:has_turbo] && !project_analysis[:api_only]
 
+      instances[:tailwind] = build_tailwind_agent if project_analysis[:has_tailwind] && !project_analysis[:api_only]
+
       # Supporting agents
       instances[:services] = build_services_agent
       instances[:jobs] = build_jobs_agent
@@ -58,6 +60,7 @@ module ClaudeOnRails
       connections << 'views' unless project_analysis[:api_only]
       connections << 'api' if project_analysis[:api_only]
       connections << 'graphql' if project_analysis[:has_graphql]
+      connections << 'tailwind' if project_analysis[:has_tailwind] && !project_analysis[:api_only]
       connections << 'services'
       connections << 'jobs'
       connections << 'tests' if project_analysis[:test_framework]
@@ -101,6 +104,7 @@ module ClaudeOnRails
     def build_views_agent
       connections = []
       connections << 'stimulus' if project_analysis[:has_turbo]
+      connections << 'tailwind' if project_analysis[:has_tailwind]
 
       {
         description: 'Rails views, layouts, partials, and asset pipeline specialist',
@@ -139,6 +143,20 @@ module ClaudeOnRails
         model: ClaudeOnRails.configuration.default_model,
         allowed_tools: %w[Read Edit Write Bash Grep Glob LS],
         prompt_file: '.claude-on-rails/prompts/stimulus.md'
+      }
+    end
+
+    def build_tailwind_agent
+      connections = ['views']
+      connections << 'stimulus' if project_analysis[:has_turbo]
+
+      {
+        description: 'Tailwind CSS styling, responsive design, and Rails frontend integration specialist',
+        directory: '.',
+        model: ClaudeOnRails.configuration.default_model,
+        connections: connections,
+        allowed_tools: %w[Read Edit Write Bash Grep Glob LS],
+        prompt_file: '.claude-on-rails/prompts/tailwind.md'
       }
     end
 
