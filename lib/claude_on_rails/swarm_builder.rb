@@ -21,6 +21,10 @@ module ClaudeOnRails
 
     private
 
+    def model_for(agent_name)
+      ClaudeOnRails.configuration.model_for(agent_name)
+    end
+
     def build_instances
       instances = {}
 
@@ -70,7 +74,7 @@ module ClaudeOnRails
       {
         description: "Rails architect coordinating #{project_analysis[:api_only] ? 'API' : 'full-stack'} development",
         directory: '.',
-        model: ClaudeOnRails.configuration.default_model,
+        model: model_for('architect'),
         connections: connections,
         prompt_file: '.claude-on-rails/prompts/architect.md',
         vibe: ClaudeOnRails.configuration.vibe_mode
@@ -81,7 +85,7 @@ module ClaudeOnRails
       {
         description: 'ActiveRecord models, migrations, and database optimization specialist',
         directory: './app/models',
-        model: ClaudeOnRails.configuration.default_model,
+        model: model_for('models'),
         allowed_tools: %w[Read Edit Write Bash Grep Glob LS],
         prompt_file: '.claude-on-rails/prompts/models.md'
       }
@@ -94,7 +98,7 @@ module ClaudeOnRails
       {
         description: 'Rails controllers, routing, and request handling specialist',
         directory: './app/controllers',
-        model: ClaudeOnRails.configuration.default_model,
+        model: model_for('controllers'),
         connections: connections.empty? ? nil : connections,
         allowed_tools: %w[Read Edit Write Bash Grep Glob LS],
         prompt_file: '.claude-on-rails/prompts/controllers.md'
@@ -115,7 +119,7 @@ module ClaudeOnRails
       {
         description: description,
         directory: './app/views',
-        model: ClaudeOnRails.configuration.default_model,
+        model: model_for('views'),
         connections: connections.empty? ? nil : connections,
         allowed_tools: %w[Read Edit Write Bash Grep Glob LS],
         prompt_file: '.claude-on-rails/prompts/views.md'
@@ -126,7 +130,7 @@ module ClaudeOnRails
       {
         description: 'RESTful API design, serialization, and versioning specialist',
         directory: './app/controllers/api',
-        model: ClaudeOnRails.configuration.default_model,
+        model: model_for('api'),
         allowed_tools: %w[Read Edit Write Bash Grep Glob LS],
         prompt_file: '.claude-on-rails/prompts/api.md'
       }
@@ -136,7 +140,7 @@ module ClaudeOnRails
       {
         description: 'GraphQL schema, resolvers, and mutations specialist',
         directory: './app/graphql',
-        model: ClaudeOnRails.configuration.default_model,
+        model: model_for('graphql'),
         allowed_tools: %w[Read Edit Write Bash Grep Glob LS],
         prompt_file: '.claude-on-rails/prompts/graphql.md'
       }
@@ -146,7 +150,7 @@ module ClaudeOnRails
       {
         description: 'Stimulus.js controllers and Turbo integration specialist',
         directory: './app/javascript',
-        model: ClaudeOnRails.configuration.default_model,
+        model: model_for('stimulus'),
         allowed_tools: %w[Read Edit Write Bash Grep Glob LS],
         prompt_file: '.claude-on-rails/prompts/stimulus.md'
       }
@@ -159,7 +163,7 @@ module ClaudeOnRails
       {
         description: 'Tailwind CSS styling, responsive design, and Rails frontend integration specialist',
         directory: '.',
-        model: ClaudeOnRails.configuration.default_model,
+        model: model_for('tailwind'),
         connections: connections,
         allowed_tools: %w[Read Edit Write Bash Grep Glob LS],
         prompt_file: '.claude-on-rails/prompts/tailwind.md'
@@ -170,7 +174,7 @@ module ClaudeOnRails
       {
         description: 'Service objects, business logic, and design patterns specialist',
         directory: './app/services',
-        model: ClaudeOnRails.configuration.default_model,
+        model: model_for('services'),
         allowed_tools: %w[Read Edit Write Bash Grep Glob LS],
         prompt_file: '.claude-on-rails/prompts/services.md'
       }
@@ -180,7 +184,7 @@ module ClaudeOnRails
       {
         description: 'Background jobs, ActiveJob, and async processing specialist',
         directory: './app/jobs',
-        model: ClaudeOnRails.configuration.default_model,
+        model: model_for('jobs'),
         allowed_tools: %w[Read Edit Write Bash Grep Glob LS],
         prompt_file: '.claude-on-rails/prompts/jobs.md'
       }
@@ -192,7 +196,7 @@ module ClaudeOnRails
       {
         description: "#{project_analysis[:test_framework]} testing, factories, and test coverage specialist",
         directory: test_dir,
-        model: ClaudeOnRails.configuration.default_model,
+        model: model_for('tests'),
         allowed_tools: %w[Read Edit Write Bash Grep Glob LS],
         prompt_file: '.claude-on-rails/prompts/tests.md'
       }
@@ -202,7 +206,7 @@ module ClaudeOnRails
       {
         description: 'Deployment, Docker, CI/CD, and production configuration specialist',
         directory: './config',
-        model: ClaudeOnRails.configuration.default_model,
+        model: model_for('devops'),
         allowed_tools: %w[Read Edit Write Bash Grep Glob LS],
         prompt_file: '.claude-on-rails/prompts/devops.md'
       }
@@ -216,7 +220,7 @@ module ClaudeOnRails
       {
         description: 'Application security auditing specialist powered by BooRails',
         directory: '.',
-        model: ClaudeOnRails.configuration.default_model,
+        model: model_for('security'),
         connections: connections,
         allowed_tools: %w[Read Edit Write Bash Grep Glob LS],
         prompt_file: '.claude-on-rails/prompts/security.md'

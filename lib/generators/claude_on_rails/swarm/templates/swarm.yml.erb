@@ -21,7 +21,7 @@ swarm:
     architect:
       description: "Rails architect coordinating <%= @api_only ? 'API' : 'full-stack' %> development for <%= Rails.application.class.module_parent_name %>"
       directory: .
-      model: opus
+      model: <%= @agent_models['architect'] || @default_model %>
       connections: [<%= agents.reject { |a| a == 'architect' }.join(', ') %>]
       prompt_file: .claude-on-rails/prompts/architect.md
       vibe: true
@@ -30,7 +30,7 @@ swarm:
     models:
       description: "ActiveRecord models, migrations, and database optimization specialist"
       directory: ./app/models
-      model: opus
+      model: <%= @agent_models['models'] || @default_model %>
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/models.md
 <%- end -%>
@@ -39,7 +39,7 @@ swarm:
     controllers:
       description: "Rails controllers, routing, and request handling specialist"
       directory: ./app/controllers
-      model: opus
+      model: <%= @agent_models['controllers'] || @default_model %>
 <%- connections = [] -%>
 <%- connections << 'services' if File.directory?(Rails.root.join("app/services")) -%>
 <%- connections << 'api' if @api_only && File.directory?(Rails.root.join("app/controllers/api")) -%>
@@ -54,7 +54,7 @@ swarm:
     views:
       description: "Rails views, layouts, partials,<%= @has_view_component ? ' ViewComponent,' : '' %> and asset pipeline specialist"
       directory: ./app/views
-      model: opus
+      model: <%= @agent_models['views'] || @default_model %>
 <%- view_connections = [] -%>
 <%- view_connections << 'stimulus' if @has_turbo && File.directory?(Rails.root.join("app/javascript")) -%>
 <%- view_connections << 'tailwind' if @has_tailwind -%>
@@ -69,7 +69,7 @@ swarm:
     api:
       description: "RESTful API design, serialization, and versioning specialist"
       directory: ./app/controllers/api
-      model: opus
+      model: <%= @agent_models['api'] || @default_model %>
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/api.md
 <%- end -%>
@@ -78,7 +78,7 @@ swarm:
     graphql:
       description: "GraphQL schema, resolvers, and mutations specialist"
       directory: ./app/graphql
-      model: opus
+      model: <%= @agent_models['graphql'] || @default_model %>
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/graphql.md
 <%- end -%>
@@ -87,7 +87,7 @@ swarm:
     stimulus:
       description: "Stimulus.js controllers and Turbo integration specialist"
       directory: ./app/javascript
-      model: opus
+      model: <%= @agent_models['stimulus'] || @default_model %>
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/stimulus.md
 <%- end -%>
@@ -96,7 +96,7 @@ swarm:
     tailwind:
       description: "Tailwind CSS styling, responsive design, and Rails frontend integration specialist"
       directory: .
-      model: opus
+      model: <%= @agent_models['tailwind'] || @default_model %>
 <%- tailwind_connections = ['views'] -%>
 <%- tailwind_connections << 'stimulus' if @has_turbo && File.directory?(Rails.root.join("app/javascript")) -%>
       connections: [<%= tailwind_connections.join(', ') %>]
@@ -108,7 +108,7 @@ swarm:
     services:
       description: "Service objects, business logic, and design patterns specialist"
       directory: ./app/services
-      model: opus
+      model: <%= @agent_models['services'] || @default_model %>
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/services.md
 <%- end -%>
@@ -117,7 +117,7 @@ swarm:
     jobs:
       description: "Background jobs, ActiveJob, and async processing specialist"
       directory: ./app/jobs
-      model: opus
+      model: <%= @agent_models['jobs'] || @default_model %>
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/jobs.md
 <%- end -%>
@@ -128,7 +128,7 @@ swarm:
     tests:
       description: "<%= @test_framework %> testing, factories, and test coverage specialist"
       directory: ./<%= test_dir %>
-      model: opus
+      model: <%= @agent_models['tests'] || @default_model %>
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/tests.md
 <%- end -%>
@@ -138,7 +138,7 @@ swarm:
     devops:
       description: "Deployment, Docker, CI/CD, and production configuration specialist"
       directory: ./config
-      model: opus
+      model: <%= @agent_models['devops'] || @default_model %>
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/devops.md
 <%- end -%>
@@ -147,7 +147,7 @@ swarm:
     security:
       description: "Application security auditing specialist powered by BooRails"
       directory: .
-      model: opus
+      model: <%= @agent_models['security'] || @default_model %>
       connections: [<%= @api_only ? 'models, controllers, api' : 'models, controllers, views' %>]
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/security.md
