@@ -48,6 +48,8 @@ module ClaudeOnRails
 
       instances[:devops] = build_devops_agent
 
+      instances[:security] = build_security_agent if project_analysis[:has_boorails]
+
       instances
     end
 
@@ -60,6 +62,7 @@ module ClaudeOnRails
       connections << 'jobs'
       connections << 'tests' if project_analysis[:test_framework]
       connections << 'devops'
+      connections << 'security' if project_analysis[:has_boorails]
 
       {
         description: "Rails architect coordinating #{project_analysis[:api_only] ? 'API' : 'full-stack'} development",
@@ -178,6 +181,21 @@ module ClaudeOnRails
         model: ClaudeOnRails.configuration.default_model,
         allowed_tools: %w[Read Edit Write Bash Grep Glob LS],
         prompt_file: '.claude-on-rails/prompts/devops.md'
+      }
+    end
+
+    def build_security_agent
+      connections = %w[models controllers]
+      connections << 'views' unless project_analysis[:api_only]
+      connections << 'api' if project_analysis[:api_only]
+
+      {
+        description: 'Application security auditing specialist powered by BooRails',
+        directory: '.',
+        model: ClaudeOnRails.configuration.default_model,
+        connections: connections,
+        allowed_tools: %w[Read Edit Write Bash Grep Glob LS],
+        prompt_file: '.claude-on-rails/prompts/security.md'
       }
     end
   end

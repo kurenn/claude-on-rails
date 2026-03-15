@@ -19,7 +19,8 @@ module ClaudeOnRails
         javascript_framework: detect_javascript_framework,
         database: detect_database,
         deployment: detect_deployment_method,
-        custom_patterns: detect_custom_patterns
+        custom_patterns: detect_custom_patterns,
+        has_boorails: ClaudeOnRails::BoorailsSupport.available?
       }
     end
 

@@ -18,6 +18,7 @@ You coordinate the following specialists:
 - **Services**: Business logic, service objects, complex operations
 - **Tests**: Test coverage, specs, test-driven development
 - **DevOps**: Deployment, configuration, infrastructure
+- **Security**: Application security auditing and hardening (when BooRails is available)
 
 ## Decision Framework
 
