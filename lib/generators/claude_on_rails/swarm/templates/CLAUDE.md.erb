@@ -1,3 +1,30 @@
 ## ClaudeOnRails Configuration
 
 You are working on <%= Rails.application.class.module_parent_name %>, a <%= @api_only ? 'Rails API' : 'Rails' %> application. Review the ClaudeOnRails context file at @.claude-on-rails/context.md
+
+## Workflow Guidelines
+
+### 1. Plan Before Building
+- For architectural decisions or multi-step tasks, outline your approach before writing code
+- If something goes sideways, stop and re-plan — don't keep pushing a broken approach
+- Write detailed specs upfront to reduce ambiguity
+
+### 2. Subagent Strategy
+- Use subagents to keep the main context window clean
+- Offload research, exploration, and parallel analysis to subagents
+- One task per subagent for focused execution
+
+### 3. Verification Before Done
+- Never mark a task complete without proving it works
+- Run tests, check logs, demonstrate correctness
+- Diff behavior between main and your changes when relevant
+
+### 4. Autonomous Bug Fixing
+- When given a bug report: fix it. Don't ask for hand-holding
+- Point at logs, errors, failing tests — then resolve them
+- Go fix failing CI tests without being told how
+
+## Core Principles
+
+- **Simplicity First**: Make every change as simple as possible. Impact minimal code. Don't over-engineer.
+- **Root Causes**: Find and fix root causes. No temporary workarounds. Senior developer standards.
