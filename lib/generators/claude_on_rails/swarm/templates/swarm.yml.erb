@@ -2,21 +2,6 @@ version: 1
 swarm:
   name: "<%= Rails.application.class.module_parent_name %> Rails Development Team"
   main: architect
-<%- if @include_mcp_server -%>
-  mcps:
-    - name: rails
-      type: stdio
-      command: rails-mcp-server
-      args: []
-      env:
-        RAILS_ENV: <%= Rails.env %>
-<%- if @include_dev_mcp -%>
-    - name: rails-dev
-      type: stdio
-      command: rails-dev-mcp
-      args: []
-<%- end -%>
-<%- end -%>
   instances:
     architect:
       description: "Rails architect coordinating <%= @api_only ? 'API' : 'full-stack' %> development for <%= Rails.application.class.module_parent_name %>"
@@ -25,6 +10,21 @@ swarm:
       connections: [<%= agents.reject { |a| a == 'architect' }.join(', ') %>]
       prompt_file: .claude-on-rails/prompts/architect.md
       vibe: true
+<%- if @include_mcp_server -%>
+      mcps:
+        - name: rails
+          type: stdio
+          command: rails-mcp-server
+          args: []
+          env:
+            RAILS_ENV: <%= Rails.env %>
+<%- if @include_dev_mcp -%>
+        - name: rails-dev
+          type: stdio
+          command: rails-dev-mcp
+          args: []
+<%- end -%>
+<%- end -%>
 <%- if File.directory?(Rails.root.join("app/models")) -%>
 
     models:
