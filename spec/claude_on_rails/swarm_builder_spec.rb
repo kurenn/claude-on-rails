@@ -12,6 +12,7 @@ RSpec.describe ClaudeOnRails::SwarmBuilder do
       has_devise: false,
       has_sidekiq: false,
       has_boorails: false,
+      has_tailwind: false,
       javascript_framework: nil,
       database: 'sqlite3',
       deployment: nil,
@@ -74,6 +75,79 @@ RSpec.describe ClaudeOnRails::SwarmBuilder do
       it 'does not add security to architect connections' do
         architect = instances[:architect]
         expect(architect[:connections]).not_to include('security')
+      end
+    end
+  end
+
+  describe 'tailwind agent' do
+    context 'when Tailwind is available on a full-stack app' do
+      let(:analysis) { base_analysis.merge(has_tailwind: true) }
+
+      it 'includes the tailwind agent' do
+        expect(instances).to include(:tailwind)
+      end
+
+      it 'configures the tailwind agent correctly' do
+        tailwind = instances[:tailwind]
+        expect(tailwind[:description]).to include('Tailwind CSS')
+        expect(tailwind[:directory]).to eq('.')
+        expect(tailwind[:allowed_tools]).to include('Bash', 'Read', 'Grep')
+        expect(tailwind[:prompt_file]).to eq('.claude-on-rails/prompts/tailwind.md')
+      end
+
+      it 'gives tailwind agent a connection to views' do
+        tailwind = instances[:tailwind]
+        expect(tailwind[:connections]).to include('views')
+      end
+
+      it 'gives tailwind agent a connection to stimulus when Turbo is present' do
+        tailwind = instances[:tailwind]
+        expect(tailwind[:connections]).to include('stimulus')
+      end
+
+      it 'adds tailwind to architect connections' do
+        architect = instances[:architect]
+        expect(architect[:connections]).to include('tailwind')
+      end
+
+      it 'adds tailwind to views agent connections' do
+        views = instances[:views]
+        expect(views[:connections]).to include('tailwind')
+      end
+    end
+
+    context 'when Tailwind is available without Turbo' do
+      let(:analysis) { base_analysis.merge(has_tailwind: true, has_turbo: false) }
+
+      it 'does not give tailwind agent a connection to stimulus' do
+        tailwind = instances[:tailwind]
+        expect(tailwind[:connections]).not_to include('stimulus')
+      end
+    end
+
+    context 'when Tailwind is not available' do
+      let(:analysis) { base_analysis.merge(has_tailwind: false) }
+
+      it 'excludes the tailwind agent' do
+        expect(instances).not_to include(:tailwind)
+      end
+
+      it 'does not add tailwind to architect connections' do
+        architect = instances[:architect]
+        expect(architect[:connections]).not_to include('tailwind')
+      end
+
+      it 'does not add tailwind to views agent connections' do
+        views = instances[:views]
+        expect(views).not_to have_key(:connections) unless base_analysis[:has_turbo]
+      end
+    end
+
+    context 'when API-only app has Tailwind' do
+      let(:analysis) { base_analysis.merge(has_tailwind: true, api_only: true) }
+
+      it 'excludes the tailwind agent' do
+        expect(instances).not_to include(:tailwind)
       end
     end
   end

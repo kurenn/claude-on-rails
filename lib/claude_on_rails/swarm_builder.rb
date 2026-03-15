@@ -104,6 +104,7 @@ module ClaudeOnRails
     def build_views_agent
       connections = []
       connections << 'stimulus' if project_analysis[:has_turbo]
+      connections << 'tailwind' if project_analysis[:has_tailwind]
 
       {
         description: 'Rails views, layouts, partials, and asset pipeline specialist',
@@ -146,10 +147,14 @@ module ClaudeOnRails
     end
 
     def build_tailwind_agent
+      connections = ['views']
+      connections << 'stimulus' if project_analysis[:has_turbo]
+
       {
         description: 'Tailwind CSS styling, responsive design, and Rails frontend integration specialist',
         directory: '.',
         model: ClaudeOnRails.configuration.default_model,
+        connections: connections,
         allowed_tools: %w[Read Edit Write Bash Grep Glob LS],
         prompt_file: '.claude-on-rails/prompts/tailwind.md'
       }

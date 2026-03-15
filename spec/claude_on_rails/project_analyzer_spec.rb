@@ -136,6 +136,13 @@ RSpec.describe ClaudeOnRails::ProjectAnalyzer do
         expect(analyzer.analyze[:has_tailwind]).to be true
       end
 
+      it 'detects application.tailwind.css entry point' do
+        FileUtils.mkdir_p(File.join(tmpdir, 'app', 'assets', 'stylesheets'))
+        File.write(File.join(tmpdir, 'app', 'assets', 'stylesheets', 'application.tailwind.css'),
+                   '@import "tailwindcss";')
+        expect(analyzer.analyze[:has_tailwind]).to be true
+      end
+
       it 'returns false when no Tailwind is present' do
         expect(analyzer.analyze[:has_tailwind]).to be false
       end

@@ -85,7 +85,8 @@ module ClaudeOnRails
 
       File.exist?(File.join(root_path, 'config', 'tailwind.config.js')) ||
         File.exist?(File.join(root_path, 'tailwind.config.js')) ||
-        File.exist?(File.join(root_path, 'tailwind.config.ts'))
+        File.exist?(File.join(root_path, 'tailwind.config.ts')) ||
+        File.exist?(File.join(root_path, 'app', 'assets', 'stylesheets', 'application.tailwind.css'))
     end
 
     def detect_javascript_framework
