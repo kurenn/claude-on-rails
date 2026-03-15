@@ -92,7 +92,7 @@ module ClaudeOnRails
     end
 
     def build_models_agent
-      {
+      agent = {
         description: 'ActiveRecord models, associations, validations, and migrations specialist',
         directory: './app/models',
         model: model_for('models'),
@@ -100,6 +100,10 @@ module ClaudeOnRails
         allowed_tools: %w[Read Edit Write Bash Grep Glob LS],
         prompt_file: '.claude-on-rails/prompts/models.md'
       }
+
+      agent[:hooks] = { before: 'bundle exec rails db:migrate:status' } if project_analysis[:hooks]
+
+      agent
     end
 
     def build_database_agent
@@ -212,13 +216,24 @@ module ClaudeOnRails
     def build_tests_agent
       test_dir = project_analysis[:test_framework] == 'RSpec' ? './spec' : './test'
 
-      {
+      agent = {
         description: "#{project_analysis[:test_framework]} testing, factories, and test coverage specialist",
         directory: test_dir,
         model: model_for('tests'),
         allowed_tools: %w[Read Edit Write Bash Grep Glob LS],
         prompt_file: '.claude-on-rails/prompts/tests.md'
       }
+
+      if project_analysis[:hooks]
+        test_command = if project_analysis[:test_framework] == 'RSpec'
+                         'bundle exec rspec --format progress'
+                       else
+                         'bundle exec rails test'
+                       end
+        agent[:hooks] = { after: test_command }
+      end
+
+      agent
     end
 
     def build_i18n_agent
