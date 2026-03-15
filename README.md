@@ -169,6 +169,16 @@ This will:
 - **Preserve any prompt files you've customized** (only updates unmodified prompts)
 - Skip `CLAUDE.md` to keep your project-specific content
 
+### Swarm Status
+
+View a summary of your current swarm configuration:
+
+```bash
+bundle exec rake claude_on_rails:status
+```
+
+This shows detected agents, model assignments, connections, MCP servers, and project analysis results.
+
 ## Features
 
 - **Automatic Agent Selection**: No need to choose which persona to use
