@@ -63,6 +63,16 @@ module ClaudeOnRails
 
       instances[:performance] = build_performance_agent
 
+      # Merge custom agents
+      custom = ClaudeOnRails::CustomAgents.new(project_analysis).load
+      custom.each do |name, config|
+        config[:model] ||= model_for(name.to_s)
+        instances[name.to_sym] = config
+      end
+
+      # Add custom agent names to architect connections
+      instances[:architect][:connections].concat(custom.keys.map(&:to_s)) if custom.any? && instances[:architect]
+
       instances
     end
 

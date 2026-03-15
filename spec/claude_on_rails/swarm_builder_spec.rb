@@ -360,6 +360,59 @@ RSpec.describe ClaudeOnRails::SwarmBuilder do
     end
   end
 
+  describe 'custom agents' do
+    let(:analysis) { base_analysis }
+    let(:tmpdir) { Dir.mktmpdir }
+    let(:config_dir) { File.join(tmpdir, '.claude-on-rails') }
+
+    after { FileUtils.remove_entry(tmpdir) }
+
+    context 'when custom agents are defined' do
+      before do
+        FileUtils.mkdir_p(config_dir)
+        File.write(File.join(config_dir, 'custom_agents.yml'), <<~YAML)
+          agents:
+            payments:
+              description: "Payment processing specialist"
+              directory: ./app/services/payments
+              connections: [models, services]
+        YAML
+      end
+
+      let(:analysis) { base_analysis.merge(root_path: tmpdir) }
+
+      it 'includes custom agents in instances' do
+        expect(instances).to include(:payments)
+      end
+
+      it 'configures the custom agent correctly' do
+        payments = instances[:payments]
+        expect(payments[:description]).to eq('Payment processing specialist')
+        expect(payments[:directory]).to eq('./app/services/payments')
+        expect(payments[:connections]).to eq(%w[models services])
+      end
+
+      it 'adds custom agents to architect connections' do
+        architect = instances[:architect]
+        expect(architect[:connections]).to include('payments')
+      end
+
+      it 'assigns default model when not specified' do
+        payments = instances[:payments]
+        expect(payments[:model]).to eq('opus')
+      end
+    end
+
+    context 'when no custom agents file exists' do
+      let(:analysis) { base_analysis.merge(root_path: tmpdir) }
+
+      it 'does not add any custom agents' do
+        built_in_agents = %i[architect models controllers views stimulus services jobs tests devops]
+        expect(instances.keys).to match_array(built_in_agents)
+      end
+    end
+  end
+
   describe 'conditional agents' do
     context 'with API-only app' do
       let(:analysis) { base_analysis.merge(api_only: true) }
