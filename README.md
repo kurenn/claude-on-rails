@@ -15,10 +15,14 @@ ClaudeOnRails creates a team of specialized AI agents:
 - **Architect**: Coordinates development and makes high-level decisions
 - **Models**: Handles ActiveRecord, migrations, and database design
 - **Controllers**: Manages routing and request handling
-- **Views**: Creates UI templates and manages assets
+- **Views**: Creates UI templates, ViewComponent, and manages assets
 - **Services**: Implements business logic and service objects
 - **Tests**: Ensures comprehensive test coverage
 - **DevOps**: Handles deployment and infrastructure
+- **Tailwind** (auto-detected): Tailwind CSS styling and responsive design
+- **Security** (optional): Application security auditing powered by BooRails
+- **Stimulus** (auto-detected): Stimulus.js controllers and Turbo integration
+- **GraphQL** (auto-detected): GraphQL schema, resolvers, and mutations
 
 Each agent works in their specific domain (directory) and can collaborate with other agents to implement complex features.
 
@@ -151,6 +155,20 @@ Customize agent behavior by editing prompts in `.claude-on-rails/prompts/`:
 - Include domain knowledge
 - Define coding standards
 
+### Regenerating Configuration
+
+After adding new gems or changing your project structure, regenerate the swarm config without losing your customized prompts:
+
+```bash
+rails generate claude_on_rails:swarm --regenerate
+```
+
+This will:
+- Re-run project detection (new gems, frameworks, directories)
+- Update `claude-swarm.yml` with the latest configuration
+- **Preserve any prompt files you've customized** (only updates unmodified prompts)
+- Skip `CLAUDE.md` to keep your project-specific content
+
 ## Features
 
 - **Automatic Agent Selection**: No need to choose which persona to use
@@ -203,7 +221,7 @@ When Rails MCP Server is available:
 
 ## Requirements
 
-- Ruby 2.7+
+- Ruby 3.3+
 - Rails 6.0+
 - [claude-swarm](https://github.com/parruda/claude-swarm) gem (automatically installed as a dependency)
 - Claude Code CLI
