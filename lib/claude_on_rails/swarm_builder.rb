@@ -57,6 +57,8 @@ module ClaudeOnRails
 
       instances[:devops] = build_devops_agent
 
+      instances[:design_review] = build_design_review_agent unless project_analysis[:api_only]
+
       instances[:security] = build_security_agent if project_analysis[:has_boorails]
 
       instances[:performance] = build_performance_agent
@@ -74,6 +76,7 @@ module ClaudeOnRails
       connections << 'jobs'
       connections << 'tests' if project_analysis[:test_framework]
       connections << 'i18n' if project_analysis[:has_i18n]
+      connections << 'design_review' unless project_analysis[:api_only]
       connections << 'devops'
       connections << 'security' if project_analysis[:has_boorails]
       connections << 'performance'
@@ -129,6 +132,7 @@ module ClaudeOnRails
       connections << 'stimulus' if project_analysis[:has_turbo]
       connections << 'tailwind' if project_analysis[:has_tailwind]
       connections << 'i18n' if project_analysis[:has_i18n]
+      connections << 'design_review'
 
       description = if project_analysis[:has_view_component]
                       'Rails views, layouts, partials, ViewComponent, and asset pipeline specialist'
@@ -253,6 +257,21 @@ module ClaudeOnRails
         connections: connections,
         allowed_tools: %w[Read Bash Grep Glob LS],
         prompt_file: '.claude-on-rails/prompts/performance.md'
+      }
+    end
+
+    def build_design_review_agent
+      connections = ['views']
+      connections << 'tailwind' if project_analysis[:has_tailwind]
+      connections << 'stimulus' if project_analysis[:has_turbo]
+
+      {
+        description: 'UX/UI design review specialist providing expert critique across views and components',
+        directory: '.',
+        model: model_for('design_review'),
+        connections: connections,
+        allowed_tools: %w[Read Bash Grep Glob LS],
+        prompt_file: '.claude-on-rails/prompts/design_review.md'
       }
     end
 

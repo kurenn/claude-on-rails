@@ -284,6 +284,75 @@ RSpec.describe ClaudeOnRails::SwarmBuilder do
     end
   end
 
+  describe 'design_review agent' do
+    context 'when full-stack app' do
+      let(:analysis) { base_analysis }
+
+      it 'includes the design_review agent' do
+        expect(instances).to include(:design_review)
+      end
+
+      it 'configures the design_review agent as read-only' do
+        design_review = instances[:design_review]
+        expect(design_review[:allowed_tools]).to include('Read', 'Bash', 'Grep', 'Glob', 'LS')
+        expect(design_review[:allowed_tools]).not_to include('Edit', 'Write')
+      end
+
+      it 'configures the design_review agent correctly' do
+        design_review = instances[:design_review]
+        expect(design_review[:description]).to include('design review')
+        expect(design_review[:directory]).to eq('.')
+        expect(design_review[:prompt_file]).to eq('.claude-on-rails/prompts/design_review.md')
+      end
+
+      it 'gives design_review agent a connection to views' do
+        design_review = instances[:design_review]
+        expect(design_review[:connections]).to include('views')
+      end
+
+      it 'adds design_review to architect connections' do
+        architect = instances[:architect]
+        expect(architect[:connections]).to include('design_review')
+      end
+
+      it 'adds design_review to views agent connections' do
+        views = instances[:views]
+        expect(views[:connections]).to include('design_review')
+      end
+    end
+
+    context 'when full-stack app with Tailwind' do
+      let(:analysis) { base_analysis.merge(has_tailwind: true) }
+
+      it 'gives design_review agent a connection to tailwind' do
+        design_review = instances[:design_review]
+        expect(design_review[:connections]).to include('tailwind')
+      end
+    end
+
+    context 'when full-stack app with Turbo' do
+      let(:analysis) { base_analysis.merge(has_turbo: true) }
+
+      it 'gives design_review agent a connection to stimulus' do
+        design_review = instances[:design_review]
+        expect(design_review[:connections]).to include('stimulus')
+      end
+    end
+
+    context 'when API-only app' do
+      let(:analysis) { base_analysis.merge(api_only: true) }
+
+      it 'excludes the design_review agent' do
+        expect(instances).not_to include(:design_review)
+      end
+
+      it 'does not add design_review to architect connections' do
+        architect = instances[:architect]
+        expect(architect[:connections]).not_to include('design_review')
+      end
+    end
+  end
+
   describe 'conditional agents' do
     context 'with API-only app' do
       let(:analysis) { base_analysis.merge(api_only: true) }

@@ -38,6 +38,9 @@ You coordinate the following specialists:
 <%- if @has_i18n -%>
 - **I18n**: Internationalization, localization, translation management
 <%- end -%>
+<%- unless @api_only -%>
+- **Design Review**: UX/UI critique, accessibility audit, visual hierarchy analysis (read-only)
+<%- end -%>
 - **DevOps**: Deployment, configuration, infrastructure
 <%- if @has_boorails -%>
 - **Security**: Application security auditing and hardening (BooRails)

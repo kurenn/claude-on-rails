@@ -66,7 +66,7 @@ module ClaudeOnRails
         @agent_models = {}
 
         if options[:cost_optimized]
-          sonnet_agents = %w[devops jobs stimulus tailwind database performance]
+          sonnet_agents = %w[devops jobs stimulus tailwind database performance design_review]
           agents.each do |agent|
             @agent_models[agent] = sonnet_agents.include?(agent) ? 'sonnet' : 'opus'
           end
@@ -83,6 +83,7 @@ module ClaudeOnRails
         say "MCP distribution: #{@include_mcp_server ? 'architect, models, controllers, views, tests' : 'N/A'}", :cyan
         say "Database agent: Enabled (#{@project_analysis[:database]})", :cyan
         say "Performance agent: Enabled", :cyan
+        say "Design Review: #{@api_only ? 'Skipped (API-only)' : 'Enabled'}", :cyan
         say "BooRails Security: #{@has_boorails ? 'Available' : 'Not installed'}", :cyan
 
         # Offer MCP setup if enabled but not available
@@ -257,6 +258,7 @@ module ClaudeOnRails
         end
 
         list << 'i18n' if @has_i18n && File.directory?(Rails.root.join('config/locales'))
+        list << 'design_review' if !@api_only && File.directory?(Rails.root.join('app/views'))
         list << 'devops' if File.directory?(Rails.root.join('config'))
         list << 'security' if @has_boorails
         list << 'performance'

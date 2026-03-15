@@ -86,6 +86,7 @@ swarm:
 <%- view_connections << 'stimulus' if @has_turbo && File.directory?(Rails.root.join("app/javascript")) -%>
 <%- view_connections << 'tailwind' if @has_tailwind -%>
 <%- view_connections << 'i18n' if @has_i18n && File.directory?(Rails.root.join("config/locales")) -%>
+<%- view_connections << 'design_review' -%>
 <%- if view_connections.any? -%>
       connections: [<%= view_connections.join(', ') %>]
 <%- end -%>
@@ -205,6 +206,19 @@ swarm:
       connections: [models<%= ', views' unless @api_only %>]
       allowed_tools: [Read, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/performance.md
+<%- if !@api_only && File.directory?(Rails.root.join("app/views")) -%>
+
+    design_review:
+      description: "UX/UI design review specialist providing expert critique across views and components"
+      directory: .
+      model: <%= @agent_models['design_review'] || @default_model %>
+<%- dr_connections = ['views'] -%>
+<%- dr_connections << 'tailwind' if @has_tailwind -%>
+<%- dr_connections << 'stimulus' if @has_turbo && File.directory?(Rails.root.join("app/javascript")) -%>
+      connections: [<%= dr_connections.join(', ') %>]
+      allowed_tools: [Read, Bash, Grep, Glob, LS]
+      prompt_file: .claude-on-rails/prompts/design_review.md
+<%- end -%>
 <%- if @has_boorails -%>
 
     security:
