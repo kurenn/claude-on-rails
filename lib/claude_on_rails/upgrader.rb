@@ -83,8 +83,8 @@ module ClaudeOnRails
       architect = instances[main_agent]
       return unless architect.is_a?(Hash)
 
-      existing_mcps = architect['mcps'] || {}
-      merged_mcps = existing_mcps.merge(swarm_mcps)
+      existing_mcps = architect['mcps'] || []
+      merged_mcps = existing_mcps + swarm_mcps
 
       architect['mcps'] = merged_mcps
       swarm.delete('mcps')

@@ -46,7 +46,7 @@ RSpec.describe ClaudeOnRails::Upgrader do
             'instances' => {
               'architect' => {
                 'description' => 'Main architect',
-                'mcps' => { 'rails-mcp' => { 'command' => 'rails-mcp' } }
+                'mcps' => [{ 'name' => 'rails', 'command' => 'rails-mcp-server' }]
               },
               'models' => { 'description' => 'Models agent' }
             }
@@ -69,9 +69,9 @@ RSpec.describe ClaudeOnRails::Upgrader do
           'swarm' => {
             'name' => 'Rails Development Team',
             'main' => 'architect',
-            'mcps' => {
-              'rails-mcp' => { 'command' => 'rails-mcp-server' }
-            },
+            'mcps' => [
+              { 'name' => 'rails', 'command' => 'rails-mcp-server' }
+            ],
             'instances' => {
               'architect' => {
                 'description' => 'Main architect',
@@ -102,14 +102,14 @@ RSpec.describe ClaudeOnRails::Upgrader do
 
         updated = YAML.safe_load_file(File.join(tmpdir, 'claude-swarm.yml'))
         architect = updated.dig('swarm', 'instances', 'architect')
-        expect(architect['mcps']).to eq({ 'rails-mcp' => { 'command' => 'rails-mcp-server' } })
+        expect(architect['mcps']).to eq([{ 'name' => 'rails', 'command' => 'rails-mcp-server' }])
         expect(updated['swarm']).not_to have_key('mcps')
       end
 
       it 'merges with existing architect MCPs' do
-        config['swarm']['instances']['architect']['mcps'] = {
-          'existing-mcp' => { 'command' => 'existing' }
-        }
+        config['swarm']['instances']['architect']['mcps'] = [
+          { 'name' => 'existing', 'command' => 'existing-cmd' }
+        ]
         File.write(File.join(tmpdir, 'claude-swarm.yml'), YAML.dump(config))
 
         upgrader.run
@@ -117,7 +117,8 @@ RSpec.describe ClaudeOnRails::Upgrader do
 
         updated = YAML.safe_load_file(File.join(tmpdir, 'claude-swarm.yml'))
         architect_mcps = updated.dig('swarm', 'instances', 'architect', 'mcps')
-        expect(architect_mcps).to include('existing-mcp', 'rails-mcp')
+        mcp_names = architect_mcps.map { |m| m['name'] }
+        expect(mcp_names).to include('existing', 'rails')
       end
 
       it 'preserves all other YAML content' do
@@ -135,7 +136,7 @@ RSpec.describe ClaudeOnRails::Upgrader do
         config = {
           'swarm' => {
             'main' => 'lead',
-            'mcps' => { 'mcp1' => { 'command' => 'cmd' } },
+            'mcps' => [{ 'name' => 'mcp1', 'command' => 'cmd' }],
             'instances' => {
               'lead' => { 'description' => 'Lead agent' }
             }
@@ -245,7 +246,7 @@ RSpec.describe ClaudeOnRails::Upgrader do
         config = {
           'swarm' => {
             'main' => 'architect',
-            'mcps' => { 'mcp1' => { 'command' => 'cmd' } },
+            'mcps' => [{ 'name' => 'mcp1', 'command' => 'cmd' }],
             'instances' => {
               'architect' => { 'description' => 'Architect' }
             }
