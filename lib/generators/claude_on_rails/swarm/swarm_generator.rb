@@ -49,6 +49,9 @@ module ClaudeOnRails
 
         @has_tailwind = @project_analysis[:has_tailwind] && !@api_only
 
+        # Check for i18n usage
+        @has_i18n = @project_analysis[:has_i18n]
+
         # Check for Rails MCP Server
         @include_mcp_server = options[:mcp_server] && ClaudeOnRails::MCPSupport.available?
 
@@ -74,6 +77,7 @@ module ClaudeOnRails
         say "GraphQL detected: #{@has_graphql ? 'Yes' : 'No'}", :cyan
         say "Tailwind CSS detected: #{@has_tailwind ? 'Yes' : 'No'}", :cyan
         say "ViewComponent detected: #{@has_view_component ? 'Yes' : 'No'}", :cyan
+        say "I18n detected: #{@has_i18n ? 'Yes' : 'No'}", :cyan
         say "Rails MCP Server: #{@include_mcp_server ? 'Available' : 'Not available'}", :cyan
         say "Rails Dev MCP: #{@include_dev_mcp ? 'Available' : 'Not available'}", :cyan
         say "BooRails Security: #{@has_boorails ? 'Available' : 'Not installed'}", :cyan
@@ -248,6 +252,7 @@ module ClaudeOnRails
           end
         end
 
+        list << 'i18n' if @has_i18n && File.directory?(Rails.root.join('config/locales'))
         list << 'devops' if File.directory?(Rails.root.join('config'))
         list << 'security' if @has_boorails
         list

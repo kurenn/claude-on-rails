@@ -52,6 +52,8 @@ module ClaudeOnRails
 
       instances[:tests] = build_tests_agent if project_analysis[:test_framework]
 
+      instances[:i18n] = build_i18n_agent if project_analysis[:has_i18n]
+
       instances[:devops] = build_devops_agent
 
       instances[:security] = build_security_agent if project_analysis[:has_boorails]
@@ -68,6 +70,7 @@ module ClaudeOnRails
       connections << 'services'
       connections << 'jobs'
       connections << 'tests' if project_analysis[:test_framework]
+      connections << 'i18n' if project_analysis[:has_i18n]
       connections << 'devops'
       connections << 'security' if project_analysis[:has_boorails]
 
@@ -109,6 +112,7 @@ module ClaudeOnRails
       connections = []
       connections << 'stimulus' if project_analysis[:has_turbo]
       connections << 'tailwind' if project_analysis[:has_tailwind]
+      connections << 'i18n' if project_analysis[:has_i18n]
 
       description = if project_analysis[:has_view_component]
                       'Rails views, layouts, partials, ViewComponent, and asset pipeline specialist'
@@ -199,6 +203,16 @@ module ClaudeOnRails
         model: model_for('tests'),
         allowed_tools: %w[Read Edit Write Bash Grep Glob LS],
         prompt_file: '.claude-on-rails/prompts/tests.md'
+      }
+    end
+
+    def build_i18n_agent
+      {
+        description: 'Rails internationalization, localization, and translation specialist',
+        directory: './config/locales',
+        model: ClaudeOnRails.configuration.default_model,
+        allowed_tools: %w[Read Edit Write Bash Grep Glob LS],
+        prompt_file: '.claude-on-rails/prompts/i18n.md'
       }
     end
 

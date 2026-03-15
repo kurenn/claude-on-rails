@@ -18,6 +18,7 @@ module ClaudeOnRails
         has_sidekiq: sidekiq?,
         has_tailwind: tailwind?,
         has_view_component: view_component?,
+        has_i18n: i18n?,
         javascript_framework: detect_javascript_framework,
         database: detect_database,
         deployment: detect_deployment_method,
@@ -96,6 +97,26 @@ module ClaudeOnRails
 
       File.read(gemfile_path).include?('view_component') ||
         File.directory?(File.join(root_path, 'app', 'components'))
+    end
+
+    def i18n?
+      locales_dir = File.join(root_path, 'config', 'locales')
+
+      # Check for multiple locale files (beyond just default en.yml)
+      if File.directory?(locales_dir)
+        locale_files = Dir[File.join(locales_dir, '**', '*.yml')] + Dir[File.join(locales_dir, '**', '*.yaml')]
+        return true if locale_files.size > 1
+      end
+
+      # Check for i18n-related gems in Gemfile
+      gemfile_path = File.join(root_path, 'Gemfile')
+      return false unless File.exist?(gemfile_path)
+
+      gemfile_content = File.read(gemfile_path)
+      gemfile_content.include?('i18n-tasks') ||
+        gemfile_content.include?('rails-i18n') ||
+        gemfile_content.include?('mobility') ||
+        gemfile_content.include?('globalize')
     end
 
     def detect_javascript_framework
