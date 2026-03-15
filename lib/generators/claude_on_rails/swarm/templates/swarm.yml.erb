@@ -33,6 +33,15 @@ swarm:
       model: <%= @agent_models['models'] || @default_model %>
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/models.md
+<%- if @include_mcp_server -%>
+      mcps:
+        - name: rails
+          type: stdio
+          command: rails-mcp-server
+          args: []
+          env:
+            RAILS_ENV: <%= Rails.env %>
+<%- end -%>
 <%- end -%>
 <%- if File.directory?(Rails.root.join("app/controllers")) -%>
 
@@ -48,6 +57,15 @@ swarm:
 <%- end -%>
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/controllers.md
+<%- if @include_mcp_server -%>
+      mcps:
+        - name: rails
+          type: stdio
+          command: rails-mcp-server
+          args: []
+          env:
+            RAILS_ENV: <%= Rails.env %>
+<%- end -%>
 <%- end -%>
 <%- if !@api_only && File.directory?(Rails.root.join("app/views")) -%>
 
@@ -64,6 +82,15 @@ swarm:
 <%- end -%>
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/views.md
+<%- if @include_mcp_server -%>
+      mcps:
+        - name: rails
+          type: stdio
+          command: rails-mcp-server
+          args: []
+          env:
+            RAILS_ENV: <%= Rails.env %>
+<%- end -%>
 <%- end -%>
 <%- if @api_only && File.directory?(Rails.root.join("app/controllers/api")) -%>
 
@@ -132,6 +159,15 @@ swarm:
       model: <%= @agent_models['tests'] || @default_model %>
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/tests.md
+<%- if @include_mcp_server -%>
+      mcps:
+        - name: rails
+          type: stdio
+          command: rails-mcp-server
+          args: []
+          env:
+            RAILS_ENV: <%= Rails.env %>
+<%- end -%>
 <%- end -%>
 <%- end -%>
 <%- if @has_i18n && File.directory?(Rails.root.join("config/locales")) -%>
