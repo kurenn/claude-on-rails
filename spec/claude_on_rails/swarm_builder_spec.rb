@@ -208,6 +208,62 @@ RSpec.describe ClaudeOnRails::SwarmBuilder do
     end
   end
 
+  describe 'performance agent' do
+    context 'with a full-stack app' do
+      let(:analysis) { base_analysis }
+
+      it 'is always included' do
+        expect(instances).to include(:performance)
+      end
+
+      it 'has read-only tools (no Edit or Write)' do
+        performance = instances[:performance]
+        expect(performance[:allowed_tools]).to eq(%w[Read Bash Grep Glob LS])
+        expect(performance[:allowed_tools]).not_to include('Edit', 'Write')
+      end
+
+      it 'has connections to models' do
+        performance = instances[:performance]
+        expect(performance[:connections]).to include('models')
+      end
+
+      it 'has connections to views for full-stack apps' do
+        performance = instances[:performance]
+        expect(performance[:connections]).to include('views')
+      end
+
+      it 'is included in architect connections' do
+        architect = instances[:architect]
+        expect(architect[:connections]).to include('performance')
+      end
+
+      it 'configures the performance agent correctly' do
+        performance = instances[:performance]
+        expect(performance[:description]).to include('performance')
+        expect(performance[:directory]).to eq('.')
+        expect(performance[:prompt_file]).to eq('.claude-on-rails/prompts/performance.md')
+      end
+    end
+
+    context 'with an API-only app' do
+      let(:analysis) { base_analysis.merge(api_only: true) }
+
+      it 'is always included' do
+        expect(instances).to include(:performance)
+      end
+
+      it 'does not have connections to views' do
+        performance = instances[:performance]
+        expect(performance[:connections]).not_to include('views')
+      end
+
+      it 'has connections to models' do
+        performance = instances[:performance]
+        expect(performance[:connections]).to include('models')
+      end
+    end
+  end
+
   describe 'views agent with ViewComponent' do
     context 'when ViewComponent is detected' do
       let(:analysis) { base_analysis.merge(has_view_component: true) }

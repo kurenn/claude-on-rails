@@ -59,6 +59,8 @@ module ClaudeOnRails
 
       instances[:security] = build_security_agent if project_analysis[:has_boorails]
 
+      instances[:performance] = build_performance_agent
+
       instances
     end
 
@@ -74,6 +76,7 @@ module ClaudeOnRails
       connections << 'i18n' if project_analysis[:has_i18n]
       connections << 'devops'
       connections << 'security' if project_analysis[:has_boorails]
+      connections << 'performance'
 
       {
         description: "Rails architect coordinating #{project_analysis[:api_only] ? 'API' : 'full-stack'} development",
@@ -236,6 +239,20 @@ module ClaudeOnRails
         model: model_for('devops'),
         allowed_tools: %w[Read Edit Write Bash Grep Glob LS],
         prompt_file: '.claude-on-rails/prompts/devops.md'
+      }
+    end
+
+    def build_performance_agent
+      connections = %w[models]
+      connections << 'views' unless project_analysis[:api_only]
+
+      {
+        description: 'Application performance profiling and bottleneck detection specialist',
+        directory: '.',
+        model: model_for('performance'),
+        connections: connections,
+        allowed_tools: %w[Read Bash Grep Glob LS],
+        prompt_file: '.claude-on-rails/prompts/performance.md'
       }
     end
 
