@@ -13,6 +13,7 @@ RSpec.describe ClaudeOnRails::SwarmBuilder do
       has_sidekiq: false,
       has_boorails: false,
       has_tailwind: false,
+      has_view_component: false,
       javascript_framework: nil,
       database: 'sqlite3',
       deployment: nil,
@@ -148,6 +149,26 @@ RSpec.describe ClaudeOnRails::SwarmBuilder do
 
       it 'excludes the tailwind agent' do
         expect(instances).not_to include(:tailwind)
+      end
+    end
+  end
+
+  describe 'views agent with ViewComponent' do
+    context 'when ViewComponent is detected' do
+      let(:analysis) { base_analysis.merge(has_view_component: true) }
+
+      it 'includes ViewComponent in the views agent description' do
+        views = instances[:views]
+        expect(views[:description]).to include('ViewComponent')
+      end
+    end
+
+    context 'when ViewComponent is not detected' do
+      let(:analysis) { base_analysis.merge(has_view_component: false) }
+
+      it 'does not mention ViewComponent in the views agent description' do
+        views = instances[:views]
+        expect(views[:description]).not_to include('ViewComponent')
       end
     end
   end
