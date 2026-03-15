@@ -185,10 +185,15 @@ module ClaudeOnRails
     end
 
     def build_security_agent
+      connections = %w[models controllers]
+      connections << 'views' unless project_analysis[:api_only]
+      connections << 'api' if project_analysis[:api_only]
+
       {
         description: 'Application security auditing specialist powered by BooRails',
         directory: '.',
         model: ClaudeOnRails.configuration.default_model,
+        connections: connections,
         allowed_tools: %w[Read Edit Write Bash Grep Glob LS],
         prompt_file: '.claude-on-rails/prompts/security.md'
       }
