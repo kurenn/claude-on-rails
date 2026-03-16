@@ -22,6 +22,7 @@ ClaudeOnRails creates a team of specialized AI agents:
 - **Performance**: Application profiling, bottleneck detection, caching strategy (read-only)
 - **DevOps**: Handles deployment and infrastructure
 - **Tailwind** (auto-detected): Tailwind CSS styling and responsive design
+- **Design Review** (full-stack only): UX/UI critique from 6 design personas — Jony Ive, Amir Salihefendic, Jesse Patel, Joe Gebbia, Katie Dill, and The Notion Designer (read-only)
 - **Security** (optional): Application security auditing powered by BooRails
 - **Stimulus** (auto-detected): Stimulus.js controllers and Turbo integration
 - **GraphQL** (auto-detected): GraphQL schema, resolvers, and mutations
