@@ -131,6 +131,23 @@ RSpec.describe ClaudeOnRails::CustomAgents do
       end
     end
 
+    context 'when agent name conflicts with a built-in agent' do
+      before do
+        FileUtils.mkdir_p(config_dir)
+        File.write(config_file, <<~YAML)
+          agents:
+            models:
+              description: "Override built-in models agent"
+        YAML
+      end
+
+      it 'raises an error for reserved names' do
+        expect { described_class.new(tmpdir).load }.to raise_error(
+          ClaudeOnRails::Error, /conflicts with a built-in agent name/
+        )
+      end
+    end
+
     context 'when YAML has no agents key' do
       before do
         FileUtils.mkdir_p(config_dir)

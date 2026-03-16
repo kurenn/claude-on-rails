@@ -8,6 +8,8 @@ module ClaudeOnRails
     OPTIONAL_FIELDS = %w[directory connections allowed_tools model prompt_file].freeze
     VALID_FIELDS = (REQUIRED_FIELDS + OPTIONAL_FIELDS).freeze
     DEFAULT_ALLOWED_TOOLS = %w[Read Edit Write Bash Grep Glob LS].freeze
+    RESERVED_NAMES = %w[architect models database controllers views api graphql stimulus tailwind
+                        services jobs tests i18n devops design_review security performance].freeze
     CONFIG_FILENAME = '.claude-on-rails/custom_agents.yml'
 
     attr_reader :root_path
@@ -40,6 +42,8 @@ module ClaudeOnRails
       result = {}
 
       agents.each do |name, config|
+        raise Error, "Custom agent '#{name}' conflicts with a built-in agent name" if RESERVED_NAMES.include?(name.to_s)
+
         raise Error, "Custom agent '#{name}' must be a hash of configuration options" unless config.is_a?(Hash)
 
         REQUIRED_FIELDS.each do |field|

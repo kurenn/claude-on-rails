@@ -276,8 +276,7 @@ module ClaudeOnRails
         list << 'performance'
 
         # Append custom agents
-        custom = ClaudeOnRails::CustomAgents.load_from_file(Rails.root)
-        custom.each_key { |name| list << name.to_s }
+        @custom_agents.each_key { |name| list << name.to_s }
 
         list
       end

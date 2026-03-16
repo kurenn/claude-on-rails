@@ -135,21 +135,25 @@ your-rails-app/
 
 ## Customization
 
-### Swarm Configuration
+### Custom Agents
 
-The generated `claude-swarm.yml` can be customized:
+Define your own domain-specific agents in `.claude-on-rails/custom_agents.yml`:
 
 ```yaml
-instances:
-  architect:
-    description: "Your project-specific architect description"
-    connections: [models, controllers, custom_agent]
-
-  custom_agent:
-    description: "Specialized agent for your domain"
-    directory: ./app/custom
-    prompt_file: .claude-on-rails/prompts/custom.md
+agents:
+  payments:
+    description: "Payment processing and Stripe integration specialist"
+    directory: ./app/services/payments
+    connections: [models, services]
+    prompt_file: .claude-on-rails/prompts/payments.md
+  emails:
+    description: "Email templates and ActionMailer specialist"
+    directory: ./app/mailers
 ```
+
+Custom agents are automatically added to the swarm and connected to the architect. All fields except `description` are optional — agents default to the project root directory with full tool access.
+
+Available fields: `description` (required), `directory`, `connections`, `allowed_tools`, `model`, `prompt_file`.
 
 ### Agent Prompts
 

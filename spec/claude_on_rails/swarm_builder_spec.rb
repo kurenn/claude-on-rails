@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'tmpdir'
 
 RSpec.describe ClaudeOnRails::SwarmBuilder do
   let(:base_analysis) do
@@ -407,7 +408,7 @@ RSpec.describe ClaudeOnRails::SwarmBuilder do
       let(:analysis) { base_analysis.merge(root_path: tmpdir) }
 
       it 'does not add any custom agents' do
-        built_in_agents = %i[architect models controllers views stimulus services jobs tests devops]
+        built_in_agents = %i[architect models database controllers views stimulus services jobs tests devops design_review performance]
         expect(instances.keys).to match_array(built_in_agents)
       end
     end
