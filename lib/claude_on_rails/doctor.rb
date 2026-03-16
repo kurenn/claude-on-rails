@@ -188,9 +188,7 @@ module ClaudeOnRails
     end
 
     def claude_swarm_version
-      output = `claude-swarm --version 2>/dev/null`.strip
-      match = output.match(/(\d+\.\d+(?:\.\d+)?)/)
-      match ? match[1] : nil
+      Gem.loaded_specs['claude_swarm']&.version&.to_s
     rescue StandardError
       nil
     end
