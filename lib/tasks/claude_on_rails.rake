@@ -83,4 +83,40 @@ namespace :claude_on_rails do
       puts "Updated: claude-swarm.yml"
     end
   end
+
+  desc 'Run diagnostic checks on ClaudeOnRails setup'
+  task doctor: :environment do
+    require 'claude_on_rails/doctor'
+
+    puts 'ClaudeOnRails Doctor'
+    puts '===================='
+
+    doctor = ClaudeOnRails::Doctor.new(Rails.root)
+    results = doctor.run
+
+    passed = 0
+    warnings = 0
+    errors = 0
+
+    results.each do |result|
+      case result.status
+      when :ok
+        puts "\e[32m\u2713 #{result.name}: #{result.message}\e[0m"
+        passed += 1
+      when :warning
+        puts "\e[33m\u26a0 #{result.name}: #{result.message}\e[0m"
+        warnings += 1
+      when :error
+        puts "\e[31m\u2717 #{result.name}: #{result.message}\e[0m"
+        errors += 1
+      end
+    end
+
+    total = results.size
+    warning_label = warnings == 1 ? 'warning' : 'warnings'
+    error_label = errors == 1 ? 'error' : 'errors'
+    puts "\n#{total} checks, #{passed} passed, #{warnings} #{warning_label}, #{errors} #{error_label}"
+
+    exit 1 if errors.positive?
+  end
 end
