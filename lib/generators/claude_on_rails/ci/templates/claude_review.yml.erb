@@ -5,12 +5,8 @@
 #   ANTHROPIC_API_KEY - Your Anthropic API key
 #
 # Review agents: <%= options[:review_agents].join(', ') %>
-#
-# Note: claude-swarm does not currently support running individual agents
-# selectively. This workflow runs a non-interactive review prompt against
-# the full swarm, asking only the review agents to participate.
 
-name: Claude Design & Security Review
+name: Claude Review
 
 on:
   pull_request:
@@ -34,23 +30,17 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
+          ruby-version: .ruby-version
           bundler-cache: true
 
       - name: Install claude-swarm
-        run: gem install claude_swarm
+        run: gem install claude_swarm --version '~> 1.0'
 
       - name: Run review agents
         run: |
-          echo "Running read-only review for PR #${{ github.event.pull_request.number }}"
-          REVIEW_AGENTS="<%= options[:review_agents].join(', ') %>"
-          DIFF=$(git diff origin/${{ github.event.pull_request.base.ref }}...HEAD)
-          cat <<PROMPT | claude-swarm --non-interactive
-          Please have the following agents review the changes in this PR: ${REVIEW_AGENTS}.
-          Focus only on reading and reviewing - do not make any changes.
-
-          Here is the diff:
-          ${DIFF}
-          PROMPT
+          claude-swarm start --stream-logs -p \
+            "Review the changes in this PR using the <%= options[:review_agents].join(', ') %> agents. Focus only on reading and reviewing — do not make any changes. Here are the changed files: $(git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD)" \
+            | tee review-output.txt
 
       - name: Post review comment
         if: always()
@@ -58,12 +48,12 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            // claude-swarm logs output to claude-swarm.log
             let reviewOutput = 'Review completed. Check the workflow logs for details.';
             try {
-              reviewOutput = fs.readFileSync('claude-swarm.log', 'utf8').slice(-4000);
+              const raw = fs.readFileSync('review-output.txt', 'utf8');
+              reviewOutput = raw.slice(-10000);
             } catch (e) {
-              console.log('No log file found, using default message');
+              console.log('No output file found, using default message');
             }
             await github.rest.issues.createComment({
               owner: context.repo.owner,

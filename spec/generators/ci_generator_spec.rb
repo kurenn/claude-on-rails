@@ -40,16 +40,18 @@ RSpec.describe 'CiGenerator' do
       expect(content).to include('synchronize')
     end
 
-    it 'includes the checkout step' do
+    it 'includes the checkout step with full history' do
       expect(content).to include('actions/checkout@v4')
+      expect(content).to include('fetch-depth: 0')
     end
 
-    it 'includes Ruby setup step' do
+    it 'includes Ruby setup with .ruby-version' do
       expect(content).to include('ruby/setup-ruby@v1')
+      expect(content).to include('ruby-version: .ruby-version')
     end
 
-    it 'installs claude-swarm' do
-      expect(content).to include('gem install claude_swarm')
+    it 'installs claude-swarm with version constraint' do
+      expect(content).to include("gem install claude_swarm --version '~> 1.0'")
     end
 
     it 'sets correct permissions' do
@@ -57,15 +59,24 @@ RSpec.describe 'CiGenerator' do
       expect(content).to include('pull-requests: write')
     end
 
-    it 'includes the workflow name' do
-      expect(content).to include('Claude Design & Security Review')
+    it 'uses claude-swarm start with -p flag for non-interactive mode' do
+      expect(content).to include('claude-swarm start --stream-logs -p')
+    end
+
+    it 'captures output to review-output.txt' do
+      expect(content).to include('tee review-output.txt')
+      expect(content).to include("readFileSync('review-output.txt'")
+    end
+
+    it 'uses git diff --name-only instead of full diff' do
+      expect(content).to include('git diff --name-only')
     end
   end
 
   describe 'workflow template with custom agents' do
     subject(:content) { render_template(review_agents: %w[security performance]) }
 
-    it 'includes the custom agents' do
+    it 'includes the custom agents in the prompt' do
       expect(content).to include('security, performance')
     end
 
