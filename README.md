@@ -179,6 +179,22 @@ bundle exec rake claude_on_rails:status
 
 This shows detected agents, model assignments, connections, MCP servers, and project analysis results.
 
+### Upgrading from Previous Versions
+
+If you're upgrading from an older version of ClaudeOnRails (pre-1.0 claude_swarm support), run:
+
+```bash
+bundle exec rake claude_on_rails:upgrade
+```
+
+This will automatically:
+- **Fix MCP placement**: Move MCP servers from swarm level to instance level (required for claude_swarm 1.0)
+- **Detect missing agents**: Suggest new agents like `design_review` if applicable
+- **Check prompt files**: Warn about any referenced prompt files that don't exist
+- **Create a backup**: Save your original `claude-swarm.yml` as `claude-swarm.yml.backup` before making changes
+
+If your config is already up to date, the task will report no fixes needed.
+
 ## Features
 
 - **Automatic Agent Selection**: No need to choose which persona to use
