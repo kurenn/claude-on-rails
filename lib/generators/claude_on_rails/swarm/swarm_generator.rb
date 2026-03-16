@@ -100,6 +100,11 @@ module ClaudeOnRails
 
         # Show model configuration
         say "Agent hooks: #{@include_hooks ? 'Enabled' : 'Disabled'}", :cyan
+
+        # Check for custom agents
+        @custom_agents = ClaudeOnRails::CustomAgents.load_from_file(Rails.root)
+        say "Custom agents: #{@custom_agents.any? ? @custom_agents.keys.map(&:to_s).join(', ') : 'None'}", :cyan
+
         say "Default model: #{@default_model}", :cyan
         say 'Cost-optimized mode: enabled (sonnet for less complex agents)', :cyan if options[:cost_optimized]
 
@@ -269,6 +274,10 @@ module ClaudeOnRails
         list << 'devops' if File.directory?(Rails.root.join('config'))
         list << 'security' if @has_boorails
         list << 'performance'
+
+        # Append custom agents
+        @custom_agents.each_key { |name| list << name.to_s }
+
         list
       end
 
