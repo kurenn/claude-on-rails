@@ -87,7 +87,7 @@ module ClaudeOnRails
 
     def build_models_agent
       {
-        description: 'ActiveRecord models, migrations, and database optimization specialist',
+        description: 'ActiveRecord models, associations, validations, and migrations specialist',
         directory: './app/models',
         model: model_for('models'),
         connections: ['database'],
