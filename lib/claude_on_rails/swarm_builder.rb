@@ -107,7 +107,6 @@ module ClaudeOnRails
         description: 'Database schema design, query optimization, and N+1 detection specialist',
         directory: '.',
         model: model_for('database'),
-        connections: ['models'],
         allowed_tools: %w[Read Bash Grep Glob LS],
         prompt_file: '.claude-on-rails/prompts/database.md'
       }
@@ -181,14 +180,10 @@ module ClaudeOnRails
     end
 
     def build_tailwind_agent
-      connections = ['views']
-      connections << 'stimulus' if project_analysis[:has_turbo]
-
       {
         description: 'Tailwind CSS styling, responsive design, and Rails frontend integration specialist',
         directory: '.',
         model: model_for('tailwind'),
-        connections: connections,
         allowed_tools: %w[Read Edit Write Bash Grep Glob LS],
         prompt_file: '.claude-on-rails/prompts/tailwind.md'
       }
@@ -261,15 +256,10 @@ module ClaudeOnRails
     end
 
     def build_design_review_agent
-      connections = ['views']
-      connections << 'tailwind' if project_analysis[:has_tailwind]
-      connections << 'stimulus' if project_analysis[:has_turbo]
-
       {
         description: 'UX/UI design review specialist providing expert critique across views and components',
         directory: '.',
         model: model_for('design_review'),
-        connections: connections,
         allowed_tools: %w[Read Bash Grep Glob LS],
         prompt_file: '.claude-on-rails/prompts/design_review.md'
       }

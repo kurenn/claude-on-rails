@@ -54,9 +54,9 @@ RSpec.describe ClaudeOnRails::SwarmBuilder do
         expect(database[:allowed_tools]).not_to include('Edit', 'Write')
       end
 
-      it 'has a connection to models' do
+      it 'has no connections (avoids circular dependency with models)' do
         database = instances[:database]
-        expect(database[:connections]).to include('models')
+        expect(database[:connections]).to be_nil
       end
 
       it 'sets directory to project root' do
@@ -151,14 +151,9 @@ RSpec.describe ClaudeOnRails::SwarmBuilder do
         expect(tailwind[:prompt_file]).to eq('.claude-on-rails/prompts/tailwind.md')
       end
 
-      it 'gives tailwind agent a connection to views' do
+      it 'has no connections (avoids circular dependency with views)' do
         tailwind = instances[:tailwind]
-        expect(tailwind[:connections]).to include('views')
-      end
-
-      it 'gives tailwind agent a connection to stimulus when Turbo is present' do
-        tailwind = instances[:tailwind]
-        expect(tailwind[:connections]).to include('stimulus')
+        expect(tailwind).not_to have_key(:connections)
       end
 
       it 'adds tailwind to architect connections' do
@@ -169,15 +164,6 @@ RSpec.describe ClaudeOnRails::SwarmBuilder do
       it 'adds tailwind to views agent connections' do
         views = instances[:views]
         expect(views[:connections]).to include('tailwind')
-      end
-    end
-
-    context 'when Tailwind is available without Turbo' do
-      let(:analysis) { base_analysis.merge(has_tailwind: true, has_turbo: false) }
-
-      it 'does not give tailwind agent a connection to stimulus' do
-        tailwind = instances[:tailwind]
-        expect(tailwind[:connections]).not_to include('stimulus')
       end
     end
 
@@ -305,9 +291,9 @@ RSpec.describe ClaudeOnRails::SwarmBuilder do
         expect(design_review[:prompt_file]).to eq('.claude-on-rails/prompts/design_review.md')
       end
 
-      it 'gives design_review agent a connection to views' do
+      it 'has no connections (read-only agent, callers delegate fixes)' do
         design_review = instances[:design_review]
-        expect(design_review[:connections]).to include('views')
+        expect(design_review).not_to have_key(:connections)
       end
 
       it 'adds design_review to architect connections' do
@@ -318,24 +304,6 @@ RSpec.describe ClaudeOnRails::SwarmBuilder do
       it 'adds design_review to views agent connections' do
         views = instances[:views]
         expect(views[:connections]).to include('design_review')
-      end
-    end
-
-    context 'when full-stack app with Tailwind' do
-      let(:analysis) { base_analysis.merge(has_tailwind: true) }
-
-      it 'gives design_review agent a connection to tailwind' do
-        design_review = instances[:design_review]
-        expect(design_review[:connections]).to include('tailwind')
-      end
-    end
-
-    context 'when full-stack app with Turbo' do
-      let(:analysis) { base_analysis.merge(has_turbo: true) }
-
-      it 'gives design_review agent a connection to stimulus' do
-        design_review = instances[:design_review]
-        expect(design_review[:connections]).to include('stimulus')
       end
     end
 
