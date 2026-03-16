@@ -288,6 +288,43 @@ When profiling, suggest these tools to the team:
    Benchmark.measure { Model.expensive_query }
    ```
 
+### Custom Instrumentation with ActiveSupport::Notifications
+
+Rails has a built-in instrumentation framework. Check if the app uses it and recommend it for custom profiling:
+
+```bash
+# Find existing custom instrumentation
+grep -rn "ActiveSupport::Notifications\|ActiveSupport::LogSubscriber" app/ lib/ --include="*.rb"
+
+# Find subscribe/instrument calls
+grep -rn "\.instrument\|\.subscribe\|\.monotonic_subscribe" app/ lib/ config/ --include="*.rb"
+```
+
+Key built-in events to monitor:
+- `process_action.action_controller` — full request timing
+- `sql.active_record` — individual SQL queries
+- `render_template.action_view` — view render times
+- `cache_read.active_support` / `cache_write.active_support` — cache hit/miss rates
+
+Recommend custom instrumentation for expensive business logic:
+
+```ruby
+# Wrapping expensive operations
+ActiveSupport::Notifications.instrument("process.payment_service", amount: amount) do
+  PaymentGateway.charge(amount)
+end
+
+# Subscribing to events for monitoring
+ActiveSupport::Notifications.subscribe("process.payment_service") do |event|
+  Rails.logger.info "Payment took #{event.duration}ms"
+end
+```
+
+Look for opportunities to instrument:
+- External API calls (Stripe, SendGrid, etc.) that aren't already measured
+- Complex service objects with multiple steps
+- Background job internals where duration varies
+
 ### Quick Profiling Commands
 
 ```bash
