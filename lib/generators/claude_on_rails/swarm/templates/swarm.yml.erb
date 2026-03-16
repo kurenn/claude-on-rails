@@ -49,7 +49,6 @@ swarm:
       description: "Database schema design, query optimization, and N+1 detection specialist"
       directory: .
       model: <%= @agent_models['database'] || @default_model %>
-      connections: [models]
       allowed_tools: [Read, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/database.md
 <%- if File.directory?(Rails.root.join("app/controllers")) -%>
@@ -86,6 +85,7 @@ swarm:
 <%- view_connections << 'stimulus' if @has_turbo && File.directory?(Rails.root.join("app/javascript")) -%>
 <%- view_connections << 'tailwind' if @has_tailwind -%>
 <%- view_connections << 'i18n' if @has_i18n && File.directory?(Rails.root.join("config/locales")) -%>
+<%- view_connections << 'design_review' -%>
 <%- if view_connections.any? -%>
       connections: [<%= view_connections.join(', ') %>]
 <%- end -%>
@@ -134,9 +134,6 @@ swarm:
       description: "Tailwind CSS styling, responsive design, and Rails frontend integration specialist"
       directory: .
       model: <%= @agent_models['tailwind'] || @default_model %>
-<%- tailwind_connections = ['views'] -%>
-<%- tailwind_connections << 'stimulus' if @has_turbo && File.directory?(Rails.root.join("app/javascript")) -%>
-      connections: [<%= tailwind_connections.join(', ') %>]
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/tailwind.md
 <%- end -%>
@@ -205,6 +202,15 @@ swarm:
       connections: [models<%= ', views' unless @api_only %>]
       allowed_tools: [Read, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/performance.md
+<%- if !@api_only && File.directory?(Rails.root.join("app/views")) -%>
+
+    design_review:
+      description: "UX/UI design review specialist providing expert critique across views and components"
+      directory: .
+      model: <%= @agent_models['design_review'] || @default_model %>
+      allowed_tools: [Read, Bash, Grep, Glob, LS]
+      prompt_file: .claude-on-rails/prompts/design_review.md
+<%- end -%>
 <%- if @has_boorails -%>
 
     security:
