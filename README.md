@@ -19,6 +19,7 @@ ClaudeOnRails creates a team of specialized AI agents:
 - **Views**: Creates UI templates, ViewComponent, and manages assets
 - **Services**: Implements business logic and service objects
 - **Tests**: Ensures comprehensive test coverage
+- **Performance**: Application profiling, bottleneck detection, caching strategy (read-only)
 - **DevOps**: Handles deployment and infrastructure
 - **Tailwind** (auto-detected): Tailwind CSS styling and responsive design
 - **Security** (optional): Application security auditing powered by BooRails
