@@ -35,6 +35,9 @@ module ClaudeOnRails
       class_option :cost_optimized, type: :boolean, default: false,
                                     desc: 'Use sonnet for less complex agents to reduce cost'
 
+      class_option :hooks, type: :boolean, default: false,
+                           desc: 'Include recommended hooks for agents'
+
       def analyze_project
         say 'Analyzing Rails project structure...', :green
         @project_analysis = ClaudeOnRails.analyze_project(Rails.root)
@@ -60,6 +63,9 @@ module ClaudeOnRails
 
         # Check for BooRails security skills
         @has_boorails = ClaudeOnRails::BoorailsSupport.available?
+
+        # Hooks configuration
+        @include_hooks = options[:hooks]
 
         # Model configuration
         @default_model = options[:model]
@@ -93,6 +99,7 @@ module ClaudeOnRails
         suggest_boorails_setup unless @has_boorails
 
         # Show model configuration
+        say "Agent hooks: #{@include_hooks ? 'Enabled' : 'Disabled'}", :cyan
         say "Default model: #{@default_model}", :cyan
         say 'Cost-optimized mode: enabled (sonnet for less complex agents)', :cyan if options[:cost_optimized]
 

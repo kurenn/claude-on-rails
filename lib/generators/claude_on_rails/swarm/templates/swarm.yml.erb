@@ -43,6 +43,10 @@ swarm:
           env:
             RAILS_ENV: <%= Rails.env %>
 <%- end -%>
+<%- if @include_hooks -%>
+      hooks:
+        before: "bundle exec rails db:migrate:status"
+<%- end -%>
 <%- end -%>
 
     database:
@@ -173,6 +177,10 @@ swarm:
           args: []
           env:
             RAILS_ENV: <%= Rails.env %>
+<%- end -%>
+<%- if @include_hooks -%>
+      hooks:
+        after: "bundle exec <%= @test_framework == 'RSpec' ? 'rspec --format progress' : 'rails test' %>"
 <%- end -%>
 <%- end -%>
 <%- end -%>

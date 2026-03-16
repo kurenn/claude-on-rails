@@ -321,6 +321,45 @@ RSpec.describe ClaudeOnRails::SwarmBuilder do
     end
   end
 
+  describe 'hooks support' do
+    context 'when hooks are enabled' do
+      let(:analysis) { base_analysis.merge(hooks: true) }
+
+      it 'adds an after hook to the tests agent' do
+        tests = instances[:tests]
+        expect(tests[:hooks]).to eq(after: 'bundle exec rspec --format progress')
+      end
+
+      it 'adds a before hook to the models agent' do
+        models = instances[:models]
+        expect(models[:hooks]).to eq(before: 'bundle exec rails db:migrate:status')
+      end
+
+      context 'with Minitest framework' do
+        let(:analysis) { base_analysis.merge(hooks: true, test_framework: 'Minitest') }
+
+        it 'uses rails test command for tests agent after hook' do
+          tests = instances[:tests]
+          expect(tests[:hooks]).to eq(after: 'bundle exec rails test')
+        end
+      end
+    end
+
+    context 'when hooks are disabled (default)' do
+      let(:analysis) { base_analysis }
+
+      it 'does not add hooks to the tests agent' do
+        tests = instances[:tests]
+        expect(tests).not_to have_key(:hooks)
+      end
+
+      it 'does not add hooks to the models agent' do
+        models = instances[:models]
+        expect(models).not_to have_key(:hooks)
+      end
+    end
+  end
+
   describe 'conditional agents' do
     context 'with API-only app' do
       let(:analysis) { base_analysis.merge(api_only: true) }
