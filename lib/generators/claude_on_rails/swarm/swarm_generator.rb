@@ -82,8 +82,8 @@ module ClaudeOnRails
         say "Rails Dev MCP: #{@include_dev_mcp ? 'Available' : 'Not available'}", :cyan
         say "MCP distribution: #{@include_mcp_server ? 'architect, models, controllers, views, tests' : 'N/A'}", :cyan
         say "Database agent: Enabled (#{@project_analysis[:database]})", :cyan
+        say "Performance agent: Enabled", :cyan
         say "BooRails Security: #{@has_boorails ? 'Available' : 'Not installed'}", :cyan
-        say 'Performance Agent: Included', :cyan
 
         # Offer MCP setup if enabled but not available
         offer_mcp_setup if options[:mcp_server] && !@include_mcp_server
