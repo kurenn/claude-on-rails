@@ -13,7 +13,8 @@ Instead of managing personas manually, ClaudeOnRails automatically orchestrates 
 ClaudeOnRails creates a team of specialized AI agents:
 
 - **Architect**: Coordinates development and makes high-level decisions
-- **Models**: Handles ActiveRecord, migrations, and database design
+- **Models**: Handles ActiveRecord models, associations, validations, and migrations
+- **Database**: Query optimization, N+1 detection, EXPLAIN analysis, index recommendations (read-only)
 - **Controllers**: Manages routing and request handling
 - **Views**: Creates UI templates, ViewComponent, and manages assets
 - **Services**: Implements business logic and service objects

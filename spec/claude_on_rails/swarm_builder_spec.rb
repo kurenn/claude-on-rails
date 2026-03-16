@@ -40,6 +40,60 @@ RSpec.describe ClaudeOnRails::SwarmBuilder do
     end
   end
 
+  describe 'database agent' do
+    context 'with a full-stack app' do
+      let(:analysis) { base_analysis }
+
+      it 'always includes the database agent' do
+        expect(instances).to include(:database)
+      end
+
+      it 'configures read-only tools (no Edit/Write)' do
+        database = instances[:database]
+        expect(database[:allowed_tools]).to eq(%w[Read Bash Grep Glob LS])
+        expect(database[:allowed_tools]).not_to include('Edit', 'Write')
+      end
+
+      it 'has a connection to models' do
+        database = instances[:database]
+        expect(database[:connections]).to include('models')
+      end
+
+      it 'sets directory to project root' do
+        database = instances[:database]
+        expect(database[:directory]).to eq('.')
+      end
+
+      it 'uses the correct prompt file' do
+        database = instances[:database]
+        expect(database[:prompt_file]).to eq('.claude-on-rails/prompts/database.md')
+      end
+
+      it 'adds database to architect connections' do
+        architect = instances[:architect]
+        expect(architect[:connections]).to include('database')
+      end
+
+      it 'adds database to models agent connections' do
+        models = instances[:models]
+        expect(models[:connections]).to include('database')
+      end
+    end
+
+    context 'with an API-only app' do
+      let(:analysis) { base_analysis.merge(api_only: true) }
+
+      it 'always includes the database agent' do
+        expect(instances).to include(:database)
+      end
+
+      it 'adds database to architect connections' do
+        architect = instances[:architect]
+        expect(architect[:connections]).to include('database')
+      end
+    end
+  end
+
   describe 'security agent' do
     context 'when BooRails is available' do
       let(:analysis) { base_analysis.merge(has_boorails: true) }
