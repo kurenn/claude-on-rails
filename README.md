@@ -202,6 +202,27 @@ This will automatically:
 
 If your config is already up to date, the task will report no fixes needed.
 
+### Session Management
+
+Swarm sessions accumulate in `.claude-swarm/` over time. Manage them with:
+
+```bash
+# List all sessions with date and size
+bundle exec rake claude_on_rails:sessions
+
+# Show total disk usage
+bundle exec rake claude_on_rails:sessions:size
+
+# Remove old sessions, keeping the 5 most recent (default)
+bundle exec rake claude_on_rails:sessions:cleanup
+
+# Keep only the 3 most recent
+bundle exec rake claude_on_rails:sessions:cleanup KEEP=3
+
+# Remove sessions older than 30 days
+bundle exec rake claude_on_rails:sessions:cleanup DAYS=30
+```
+
 ## Features
 
 - **Automatic Agent Selection**: No need to choose which persona to use

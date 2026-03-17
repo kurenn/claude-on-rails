@@ -9,6 +9,7 @@ require 'claude_on_rails/custom_agents'
 require 'claude_on_rails/mcp_support'
 require 'claude_on_rails/boorails_support'
 require 'claude_on_rails/upgrader'
+require 'claude_on_rails/session_manager'
 
 # Load railtie if Rails is defined
 require 'claude_on_rails/railtie' if defined?(Rails::Railtie)
