@@ -229,6 +229,17 @@ swarm:
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/security.md
 <%- end -%>
+
+    documentation:
+      description: "API documentation, YARD docs, and project documentation specialist"
+      directory: .
+      model: <%= @agent_models['documentation'] || @default_model %>
+<%- doc_connections = ['models', 'controllers'] -%>
+<%- doc_connections << 'api' if @api_only && File.directory?(Rails.root.join("app/controllers/api")) -%>
+<%- doc_connections << 'graphql' if @has_graphql && File.directory?(Rails.root.join("app/graphql")) -%>
+      connections: [<%= doc_connections.join(', ') %>]
+      allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
+      prompt_file: .claude-on-rails/prompts/documentation.md
 <%- custom_agents = ClaudeOnRails::CustomAgents.load_from_file(Rails.root) -%>
 <%- custom_agents.each do |name, config| -%>
 

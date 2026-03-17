@@ -408,8 +408,58 @@ RSpec.describe ClaudeOnRails::SwarmBuilder do
       let(:analysis) { base_analysis.merge(root_path: tmpdir) }
 
       it 'does not add any custom agents' do
-        built_in_agents = %i[architect models database controllers views stimulus services jobs tests devops design_review performance]
+        built_in_agents = %i[architect models database controllers views stimulus services jobs tests devops design_review performance documentation]
         expect(instances.keys).to match_array(built_in_agents)
+      end
+    end
+  end
+
+  describe 'documentation agent' do
+    context 'with default configuration' do
+      let(:analysis) { base_analysis }
+
+      it 'always includes the documentation agent' do
+        expect(instances).to include(:documentation)
+      end
+
+      it 'has write tools' do
+        documentation = instances[:documentation]
+        expect(documentation[:allowed_tools]).to include('Edit', 'Write')
+      end
+
+      it 'configures the documentation agent correctly' do
+        documentation = instances[:documentation]
+        expect(documentation[:description]).to include('documentation')
+        expect(documentation[:directory]).to eq('.')
+        expect(documentation[:prompt_file]).to eq('.claude-on-rails/prompts/documentation.md')
+      end
+
+      it 'has connections to models and controllers' do
+        documentation = instances[:documentation]
+        expect(documentation[:connections]).to include('models', 'controllers')
+      end
+
+      it 'adds documentation to architect connections' do
+        architect = instances[:architect]
+        expect(architect[:connections]).to include('documentation')
+      end
+    end
+
+    context 'with API-only app' do
+      let(:analysis) { base_analysis.merge(api_only: true) }
+
+      it 'includes api in documentation connections' do
+        documentation = instances[:documentation]
+        expect(documentation[:connections]).to include('api')
+      end
+    end
+
+    context 'with GraphQL' do
+      let(:analysis) { base_analysis.merge(has_graphql: true) }
+
+      it 'includes graphql in documentation connections' do
+        documentation = instances[:documentation]
+        expect(documentation[:connections]).to include('graphql')
       end
     end
   end

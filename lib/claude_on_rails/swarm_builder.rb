@@ -63,6 +63,8 @@ module ClaudeOnRails
 
       instances[:performance] = build_performance_agent
 
+      instances[:documentation] = build_documentation_agent
+
       # Merge custom agents
       custom = ClaudeOnRails::CustomAgents.new(project_analysis).load
       custom.each do |name, config|
@@ -90,6 +92,7 @@ module ClaudeOnRails
       connections << 'devops'
       connections << 'security' if project_analysis[:has_boorails]
       connections << 'performance'
+      connections << 'documentation'
 
       {
         description: "Rails architect coordinating #{project_analysis[:api_only] ? 'API' : 'full-stack'} development",
@@ -287,6 +290,21 @@ module ClaudeOnRails
         model: model_for('design_review'),
         allowed_tools: %w[Read Bash Grep Glob LS],
         prompt_file: '.claude-on-rails/prompts/design_review.md'
+      }
+    end
+
+    def build_documentation_agent
+      connections = %w[models controllers]
+      connections << 'api' if project_analysis[:api_only]
+      connections << 'graphql' if project_analysis[:has_graphql]
+
+      {
+        description: 'API documentation, YARD docs, and project documentation specialist',
+        directory: '.',
+        model: model_for('documentation'),
+        connections: connections,
+        allowed_tools: %w[Read Edit Write Bash Grep Glob LS],
+        prompt_file: '.claude-on-rails/prompts/documentation.md'
       }
     end
 
