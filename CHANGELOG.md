@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-03-16
+
+### Added
+- **Database agent**: Schema design, query optimization, N+1 detection, and EXPLAIN analysis (read-only)
+- **Performance agent**: Application profiling, bottleneck detection, and caching strategy (read-only)
+- **Design Review agent**: UX/UI critique powered by 6 design personas — Jony Ive, Amir Salihefendic, Jesse Patel, Joe Gebbia, Katie Dill, and The Notion Designer (read-only, full-stack only)
+- **Documentation agent**: YARD docs, README maintenance, changelog, ADRs, and OpenAPI/GraphQL schema docs
+- **I18n agent**: Internationalization support for translations, locale management, and pluralization
+- **Custom agent support**: Define your own agents in `.claude-on-rails/custom_agents.yml` with validation and reserved name protection
+- **Hooks support**: `--hooks` flag adds before/after hooks to agents (migration status for models, test run for tests)
+- **GitHub Actions CI generator**: `rails generate claude_on_rails:ci` creates a workflow for automated PR reviews via the swarm
+- **Session management rake tasks**: `claude_on_rails:sessions`, `sessions:cleanup`, and `sessions:size` for managing `.claude-swarm/` session data
+- **Doctor task**: `rake claude_on_rails:doctor` validates setup with diagnostic checks
+- **Upgrade task**: `rake claude_on_rails:upgrade` migrates config from older versions (MCP placement, missing agents, prompt files)
+- **`--dry-run` flag**: Preview what the swarm generator would create without writing files
+- **Per-agent MCP distribution**: Rails MCP Server distributed to architect, models, controllers, views, and tests agents
+- **Dynamic architect prompt**: ERB-based architect prompt with project-specific context
+
+### Changed
+- MCP servers moved from swarm level to individual agent instances (claude-swarm 1.0 requirement)
+- Models agent description updated to focus on associations and validations (database concerns moved to database agent)
+- Tailwind, database, and design_review agents are now leaf agents with no outbound connections (fixes circular dependency errors)
+- Cost-optimized mode (`--cost-optimized`) now includes database, performance, design_review, and documentation agents on sonnet
+
+### Fixed
+- Circular dependency errors: removed bidirectional connections between models↔database, views↔tailwind, and design_review→views/tailwind/stimulus
+
 ## [0.3.0] - 2026-03-14
 
 ### Changed
