@@ -38,6 +38,9 @@ module ClaudeOnRails
       class_option :hooks, type: :boolean, default: false,
                            desc: 'Include recommended hooks for agents'
 
+      class_option :dry_run, type: :boolean, default: false,
+                             desc: 'Preview what would be generated without writing any files'
+
       def analyze_project
         say 'Analyzing Rails project structure...', :green
         @project_analysis = ClaudeOnRails.analyze_project(Rails.root)
@@ -116,14 +119,20 @@ module ClaudeOnRails
           model_label = agent_model == @default_model ? '' : " (#{agent_model})"
           say "  - #{agent}#{model_label}", :cyan
         end
+
+        display_dry_run_summary if options[:dry_run]
       end
 
       def create_swarm_config
+        return if options[:dry_run]
+
         say 'Generating swarm configuration...', :green
         template 'swarm.yml.erb', 'claude-swarm.yml'
       end
 
       def create_claude_md
+        return if options[:dry_run]
+
         # Always create/update the ClaudeOnRails context file
         template 'claude_on_rails_context.md', '.claude-on-rails/context.md'
 
@@ -158,6 +167,8 @@ module ClaudeOnRails
       end
 
       def create_agent_prompts
+        return if options[:dry_run]
+
         say 'Setting up agent-specific prompts...', :green
 
         dest_dir = '.claude-on-rails/prompts'
@@ -197,6 +208,8 @@ module ClaudeOnRails
       end
 
       def update_gitignore
+        return if options[:dry_run]
+
         say 'Updating .gitignore...', :green
         gitignore_path = Rails.root.join('.gitignore')
 
@@ -226,6 +239,8 @@ module ClaudeOnRails
       end
 
       def display_next_steps
+        return if options[:dry_run]
+
         if options[:regenerate]
           say "\nSwarm configuration regenerated!", :green
           say 'Customized prompt files were preserved.', :cyan
@@ -281,6 +296,23 @@ module ClaudeOnRails
         @custom_agents.each_key { |name| list << name.to_s }
 
         list
+      end
+
+      def display_dry_run_summary
+        say "\n[DRY RUN] No files will be written.", :yellow
+        say "\nFiles that would be created/updated:", :yellow
+        say '  - claude-swarm.yml', :cyan
+        say '  - .claude-on-rails/context.md', :cyan
+        say '  - CLAUDE.md', :cyan unless options[:regenerate] && File.exist?('CLAUDE.md')
+
+        prompt_dir = File.join(self.class.source_root, 'prompts')
+        Dir[File.join(prompt_dir, '*')].each do |source_path|
+          filename = File.basename(source_path).sub(/\.erb\z/, '')
+          say "  - .claude-on-rails/prompts/#{filename}", :cyan
+        end
+
+        say '  - .gitignore (append)', :cyan
+        say "\nRun without --dry-run to generate these files.", :yellow
       end
 
       def offer_mcp_setup
