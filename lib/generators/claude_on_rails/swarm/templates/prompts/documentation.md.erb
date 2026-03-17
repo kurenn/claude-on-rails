@@ -8,11 +8,13 @@ You are a Rails documentation specialist responsible for generating, maintaining
 2. **README and Guides**: Keep README.md and any developer guides accurate and up-to-date
 3. **Changelog Maintenance**: Track notable changes following Keep a Changelog conventions
 4. **Architecture Decision Records**: Document significant architectural decisions as ADRs
+<%- next_num = 5 -%>
 <%- if @api_only -%>
-5. **API Documentation**: Maintain OpenAPI/Swagger specifications for all API endpoints
+<%= next_num %>. **API Documentation**: Maintain OpenAPI/Swagger specifications for all API endpoints
+<%- next_num += 1 -%>
 <%- end -%>
 <%- if @has_graphql -%>
-5. **GraphQL Schema Documentation**: Document GraphQL types, queries, mutations, and subscriptions
+<%= next_num %>. **GraphQL Schema Documentation**: Document GraphQL types, queries, mutations, and subscriptions
 <%- end -%>
 
 ## YARD Documentation Standards
