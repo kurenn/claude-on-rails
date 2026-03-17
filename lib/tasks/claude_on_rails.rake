@@ -150,14 +150,36 @@ namespace :claude_on_rails do
       require 'claude_on_rails/session_manager'
       manager = ClaudeOnRails::SessionManager.new(Rails.root)
 
-      removed = if ENV['DAYS']
-                  manager.cleanup_older_than(days: ENV['DAYS'].to_i)
-                else
-                  keep = (ENV['KEEP'] || 5).to_i
-                  manager.cleanup(keep: keep)
-                end
+      all_sessions = manager.sessions
+      candidates = if ENV['DAYS']
+                     cutoff = Time.now - (ENV['DAYS'].to_i * 86_400)
+                     all_sessions.select { |s| s[:date] < cutoff }
+                   else
+                     keep = (ENV['KEEP'] || 5).to_i
+                     all_sessions.length > keep ? all_sessions[keep..] : []
+                   end
 
-      puts "Removed #{removed} session(s)."
+      if candidates.empty?
+        puts 'No sessions to remove.'
+        next
+      end
+
+      puts "Sessions to remove:"
+      candidates.each do |session|
+        date_str = session[:date].strftime('%Y-%m-%d %H:%M')
+        size_str = manager.format_size(session[:size_bytes])
+        puts "  #{session[:name]}  #{date_str}  (#{size_str})"
+      end
+      puts
+
+      print "Remove #{candidates.length} session(s)? [y/N] "
+      answer = $stdin.gets&.strip
+      if answer&.match?(/\Ay(es)?\z/i)
+        candidates.each { |s| FileUtils.rm_rf(s[:path]) }
+        puts "Removed #{candidates.length} session(s)."
+      else
+        puts 'Cancelled.'
+      end
     end
 
     desc 'Show total disk usage of swarm sessions'
