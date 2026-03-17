@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] - 2026-03-16
+
+### Changed
+- **Models prompt**: Enhanced from 94 to 286 lines — added modern Rails 7+/8+ features (normalizes, encrypted attributes, generates_token_for, strict_loading), STI vs delegated types, concerns, callback anti-patterns, migration safety, batch operations, and non-negotiables
+- **Controllers prompt**: Enhanced from 103 to 662 lines — added Turbo Stream/Frame responses, rate limiting (Rails 8+), authentication patterns, streaming/SSE, controller concerns, strong params with `params.expect`, and non-negotiables
+- **Tests prompt**: Enhanced from 149 to 738 lines — added factory strategies hierarchy, test doubles philosophy, request/system/model spec guidance, job and mailer testing, parallel testing, speed optimization, what NOT to test, and non-negotiables
+
 ## [0.4.0] - 2026-03-16
 
 ### Added
