@@ -9,10 +9,12 @@ You are working on <%= Rails.application.class.module_parent_name %>, a <%= @api
 - If something goes sideways, stop and re-plan — don't keep pushing a broken approach
 - Write detailed specs upfront to reduce ambiguity
 
-### 2. Subagent Strategy
-- Use subagents to keep the main context window clean
-- Offload research, exploration, and parallel analysis to subagents
-- One task per subagent for focused execution
+### 2. Subagent Strategy (MANDATORY)
+- **You MUST delegate implementation to specialist MCP agents** — do NOT edit files directly when a specialist agent exists for that domain
+- The architect (you) plans the work, breaks it into tasks by Rails layer, and delegates each piece to the appropriate specialist
+- One task per specialist for focused execution
+- Coordinate results and verify the specialists' output works together
+- Only use Read/Grep/Glob directly for research and planning — all code changes go through specialists
 
 ### 3. Verification Before Done
 - Never mark a task complete without proving it works
@@ -28,3 +30,41 @@ You are working on <%= Rails.application.class.module_parent_name %>, a <%= @api
 
 - **Simplicity First**: Make every change as simple as possible. Impact minimal code. Don't over-engineer.
 - **Root Causes**: Find and fix root causes. No temporary workarounds. Senior developer standards.
+
+## Swarm Architecture
+
+The following specialized agents work together to implement your requests. **Each agent is an MCP tool that MUST be called for its domain — never edit files directly when a specialist exists:**
+
+| Role | MCP Tool | Responsibility |
+|------|----------|----------------|
+| **Architect** | *(you)* | Plans, coordinates, delegates, verifies |
+<%- agent_descriptions = {
+  'models' => ['Models', 'ActiveRecord models, associations, validations, migrations'],
+  'database' => ['Database', 'Schema design, query optimization, N+1 detection'],
+  'controllers' => ['Controllers', 'Request handling, routing, controller logic'],
+  'views' => ['Views', 'Views, layouts, partials, ViewComponent, assets'],
+  'api' => ['API', 'RESTful API design, serialization, versioning'],
+  'graphql' => ['GraphQL', 'GraphQL schema, resolvers, mutations'],
+  'stimulus' => ['Stimulus', 'Stimulus.js controllers, Turbo integration'],
+  'tailwind' => ['Tailwind', 'Tailwind CSS styling, responsive design'],
+  'services' => ['Services', 'Service objects, business logic, design patterns'],
+  'jobs' => ['Jobs', 'Background jobs, ActiveJob, async processing'],
+  'tests' => ['Tests', 'Test specs, factories, test coverage'],
+  'i18n' => ['I18n', 'Internationalization, localization, translations'],
+  'devops' => ['DevOps', 'Deployment, Docker, CI/CD, production config'],
+  'performance' => ['Performance', 'Profiling, bottleneck detection, optimization'],
+  'design_review' => ['Design Review', 'UX/UI critique across views and components'],
+  'security' => ['Security', 'Security auditing, vulnerability detection'],
+  'documentation' => ['Documentation', 'API docs, YARD docs, project documentation']
+} -%>
+<%- agents.reject { |a| a == 'architect' }.each do |agent| -%>
+<%- desc = agent_descriptions[agent] -%>
+<%- if desc -%>
+| **<%= desc[0] %>** | `mcp__<%= agent %>__task` | <%= desc[1] %> |
+<%- end -%>
+<%- end -%>
+<%- @custom_agents.each do |name, config| -%>
+| **<%= name.to_s.titleize %>** | `mcp__<%= name %>__task` | <%= config[:description] %> |
+<%- end -%>
+
+**Implementation order**: models/database → controllers → services → views/stimulus/tailwind → tests
