@@ -59,7 +59,7 @@ module ClaudeOnRails
 
       instances[:design_review] = build_design_review_agent unless project_analysis[:api_only]
 
-      instances[:security] = build_security_agent if project_analysis[:has_boorails]
+      instances[:security] = build_security_agent
 
       instances[:performance] = build_performance_agent
 
@@ -90,7 +90,7 @@ module ClaudeOnRails
       connections << 'i18n' if project_analysis[:has_i18n]
       connections << 'design_review' unless project_analysis[:api_only]
       connections << 'devops'
-      connections << 'security' if project_analysis[:has_boorails]
+      connections << 'security'
       connections << 'performance'
       connections << 'documentation'
 
@@ -99,17 +99,20 @@ module ClaudeOnRails
         directory: '.',
         model: model_for('architect'),
         connections: connections,
-        prompt_file: '.claude-on-rails/prompts/architect.md',
-        vibe: ClaudeOnRails.configuration.vibe_mode
+        allowed_tools: %w[Read Bash Grep Glob LS],
+        prompt_file: '.claude-on-rails/prompts/architect.md'
       }
     end
 
     def build_models_agent
+      connections = ['database']
+      connections << 'security'
+
       agent = {
         description: 'ActiveRecord models, associations, validations, and migrations specialist',
         directory: './app/models',
         model: model_for('models'),
-        connections: ['database'],
+        connections: connections,
         allowed_tools: %w[Read Edit Write Bash Grep Glob LS],
         prompt_file: '.claude-on-rails/prompts/models.md'
       }
@@ -132,15 +135,16 @@ module ClaudeOnRails
     def build_controllers_agent
       connections = ['services']
       connections << 'api' if project_analysis[:api_only]
+      connections << 'security'
 
       {
         description: 'Rails controllers, routing, and request handling specialist',
         directory: './app/controllers',
         model: model_for('controllers'),
-        connections: connections.empty? ? nil : connections,
+        connections: connections,
         allowed_tools: %w[Read Edit Write Bash Grep Glob LS],
         prompt_file: '.claude-on-rails/prompts/controllers.md'
-      }.compact
+      }
     end
 
     def build_views_agent
@@ -149,6 +153,7 @@ module ClaudeOnRails
       connections << 'tailwind' if project_analysis[:has_tailwind]
       connections << 'i18n' if project_analysis[:has_i18n]
       connections << 'design_review'
+      connections << 'security'
 
       description = if project_analysis[:has_view_component]
                       'Rails views, layouts, partials, ViewComponent, and asset pipeline specialist'
@@ -211,6 +216,7 @@ module ClaudeOnRails
         description: 'Service objects, business logic, and design patterns specialist',
         directory: './app/services',
         model: model_for('services'),
+        connections: ['models'],
         allowed_tools: %w[Read Edit Write Bash Grep Glob LS],
         prompt_file: '.claude-on-rails/prompts/services.md'
       }
@@ -221,6 +227,7 @@ module ClaudeOnRails
         description: 'Background jobs, ActiveJob, and async processing specialist',
         directory: './app/jobs',
         model: model_for('jobs'),
+        connections: %w[models services],
         allowed_tools: %w[Read Edit Write Bash Grep Glob LS],
         prompt_file: '.claude-on-rails/prompts/jobs.md'
       }
@@ -233,6 +240,7 @@ module ClaudeOnRails
         description: "#{project_analysis[:test_framework]} testing, factories, and test coverage specialist",
         directory: test_dir,
         model: model_for('tests'),
+        connections: %w[models controllers services],
         allowed_tools: %w[Read Edit Write Bash Grep Glob LS],
         prompt_file: '.claude-on-rails/prompts/tests.md'
       }
@@ -270,7 +278,7 @@ module ClaudeOnRails
     end
 
     def build_performance_agent
-      connections = %w[models]
+      connections = %w[models database]
       connections << 'views' unless project_analysis[:api_only]
 
       {
@@ -313,8 +321,14 @@ module ClaudeOnRails
       connections << 'views' unless project_analysis[:api_only]
       connections << 'api' if project_analysis[:api_only]
 
+      description = if project_analysis[:has_boorails]
+                      'Application security auditing specialist powered by BooRails'
+                    else
+                      'Application security auditing and hardening specialist'
+                    end
+
       {
-        description: 'Application security auditing specialist powered by BooRails',
+        description: description,
         directory: '.',
         model: model_for('security'),
         connections: connections,

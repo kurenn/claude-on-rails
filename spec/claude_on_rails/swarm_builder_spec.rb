@@ -75,9 +75,9 @@ RSpec.describe ClaudeOnRails::SwarmBuilder do
         expect(architect[:connections]).to include('database')
       end
 
-      it 'adds database to models agent connections' do
+      it 'adds database and security to models agent connections' do
         models = instances[:models]
-        expect(models[:connections]).to include('database')
+        expect(models[:connections]).to include('database', 'security')
       end
     end
 
@@ -96,10 +96,10 @@ RSpec.describe ClaudeOnRails::SwarmBuilder do
   end
 
   describe 'security agent' do
-    context 'when BooRails is available' do
-      let(:analysis) { base_analysis.merge(has_boorails: true) }
+    context 'with default configuration' do
+      let(:analysis) { base_analysis }
 
-      it 'includes the security agent' do
+      it 'always includes the security agent' do
         expect(instances).to include(:security)
       end
 
@@ -120,18 +120,39 @@ RSpec.describe ClaudeOnRails::SwarmBuilder do
         architect = instances[:architect]
         expect(architect[:connections]).to include('security')
       end
+
+      it 'uses generic description without BooRails' do
+        security = instances[:security]
+        expect(security[:description]).to include('hardening')
+        expect(security[:description]).not_to include('BooRails')
+      end
     end
 
-    context 'when BooRails is not available' do
-      let(:analysis) { base_analysis.merge(has_boorails: false) }
+    context 'when BooRails is available' do
+      let(:analysis) { base_analysis.merge(has_boorails: true) }
 
-      it 'excludes the security agent' do
-        expect(instances).not_to include(:security)
+      it 'uses BooRails-powered description' do
+        security = instances[:security]
+        expect(security[:description]).to include('BooRails')
       end
+    end
 
-      it 'does not add security to architect connections' do
-        architect = instances[:architect]
-        expect(architect[:connections]).not_to include('security')
+    context 'with full-stack app' do
+      let(:analysis) { base_analysis }
+
+      it 'connects security to views' do
+        security = instances[:security]
+        expect(security[:connections]).to include('views')
+      end
+    end
+
+    context 'with API-only app' do
+      let(:analysis) { base_analysis.merge(api_only: true) }
+
+      it 'connects security to api instead of views' do
+        security = instances[:security]
+        expect(security[:connections]).to include('api')
+        expect(security[:connections]).not_to include('views')
       end
     end
   end
@@ -209,9 +230,9 @@ RSpec.describe ClaudeOnRails::SwarmBuilder do
         expect(performance[:allowed_tools]).not_to include('Edit', 'Write')
       end
 
-      it 'has connections to models' do
+      it 'has connections to models and database' do
         performance = instances[:performance]
-        expect(performance[:connections]).to include('models')
+        expect(performance[:connections]).to include('models', 'database')
       end
 
       it 'has connections to views for full-stack apps' do
@@ -244,9 +265,9 @@ RSpec.describe ClaudeOnRails::SwarmBuilder do
         expect(performance[:connections]).not_to include('views')
       end
 
-      it 'has connections to models' do
+      it 'has connections to models and database' do
         performance = instances[:performance]
-        expect(performance[:connections]).to include('models')
+        expect(performance[:connections]).to include('models', 'database')
       end
     end
   end
@@ -408,7 +429,7 @@ RSpec.describe ClaudeOnRails::SwarmBuilder do
       let(:analysis) { base_analysis.merge(root_path: tmpdir) }
 
       it 'does not add any custom agents' do
-        built_in_agents = %i[architect models database controllers views stimulus services jobs tests devops design_review performance documentation]
+        built_in_agents = %i[architect models database controllers views stimulus services jobs tests devops design_review security performance documentation]
         expect(instances.keys).to match_array(built_in_agents)
       end
     end
