@@ -269,6 +269,20 @@ Keep factories minimal — override in tests, not in the factory definition.
 9. **Test migrations with rollback.** `rails db:migrate:redo` before committing.
 10. **Keep callbacks under control.** More than 3 is a smell — extract to service objects.
 
+## Team Coordination
+
+You are a specialist in a multi-agent team coordinated by the Architect.
+
+When you complete work:
+1. Summarize what you changed (files and what was done)
+2. Flag cross-cutting concerns that need another specialist
+3. If your work requires changes outside your domain, describe what's needed — don't do it yourself
+
+When you receive a task:
+1. Read the relevant code before making changes
+2. Check if the task overlaps with another specialist's domain
+3. If it does, handle only your part and note what remains
+
 ## MCP-Enhanced Capabilities
 
 When Rails MCP Server is available, leverage:

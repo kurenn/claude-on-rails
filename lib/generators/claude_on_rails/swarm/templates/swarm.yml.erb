@@ -9,7 +9,7 @@ swarm:
       model: <%= @agent_models['architect'] || @default_model %>
       connections: [<%= agents.reject { |a| a == 'architect' }.join(', ') %>]
       prompt_file: .claude-on-rails/prompts/architect.md
-      vibe: true
+      allowed_tools: [Read, Bash, Grep, Glob, LS]
 <%- if @include_mcp_server -%>
       mcps:
         - name: rails
@@ -31,7 +31,9 @@ swarm:
       description: "ActiveRecord models, associations, validations, and migrations specialist"
       directory: ./app/models
       model: <%= @agent_models['models'] || @default_model %>
-      connections: [database]
+<%- models_connections = ['database'] -%>
+<%- models_connections << 'security' if agents.include?('security') -%>
+      connections: [<%= models_connections.join(', ') %>]
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/models.md
 <%- if @include_mcp_server -%>
@@ -64,9 +66,8 @@ swarm:
 <%- connections = [] -%>
 <%- connections << 'services' if File.directory?(Rails.root.join("app/services")) -%>
 <%- connections << 'api' if @api_only && File.directory?(Rails.root.join("app/controllers/api")) -%>
-<%- if connections.any? -%>
+<%- connections << 'security' if agents.include?('security') -%>
       connections: [<%= connections.join(', ') %>]
-<%- end -%>
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/controllers.md
 <%- if @include_mcp_server -%>
@@ -90,9 +91,8 @@ swarm:
 <%- view_connections << 'tailwind' if @has_tailwind -%>
 <%- view_connections << 'i18n' if @has_i18n && File.directory?(Rails.root.join("config/locales")) -%>
 <%- view_connections << 'design_review' -%>
-<%- if view_connections.any? -%>
+<%- view_connections << 'security' if agents.include?('security') -%>
       connections: [<%= view_connections.join(', ') %>]
-<%- end -%>
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/views.md
 <%- if @include_mcp_server -%>
@@ -147,6 +147,11 @@ swarm:
       description: "Service objects, business logic, and design patterns specialist"
       directory: ./app/services
       model: <%= @agent_models['services'] || @default_model %>
+<%- services_connections = [] -%>
+<%- services_connections << 'models' if File.directory?(Rails.root.join("app/models")) -%>
+<%- if services_connections.any? -%>
+      connections: [<%= services_connections.join(', ') %>]
+<%- end -%>
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/services.md
 <%- end -%>
@@ -156,6 +161,12 @@ swarm:
       description: "Background jobs, ActiveJob, and async processing specialist"
       directory: ./app/jobs
       model: <%= @agent_models['jobs'] || @default_model %>
+<%- jobs_connections = [] -%>
+<%- jobs_connections << 'models' if File.directory?(Rails.root.join("app/models")) -%>
+<%- jobs_connections << 'services' if File.directory?(Rails.root.join("app/services")) -%>
+<%- if jobs_connections.any? -%>
+      connections: [<%= jobs_connections.join(', ') %>]
+<%- end -%>
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/jobs.md
 <%- end -%>
@@ -167,6 +178,13 @@ swarm:
       description: "<%= @test_framework %> testing, factories, and test coverage specialist"
       directory: ./<%= test_dir %>
       model: <%= @agent_models['tests'] || @default_model %>
+<%- tests_connections = [] -%>
+<%- tests_connections << 'models' if File.directory?(Rails.root.join("app/models")) -%>
+<%- tests_connections << 'controllers' if File.directory?(Rails.root.join("app/controllers")) -%>
+<%- tests_connections << 'services' if File.directory?(Rails.root.join("app/services")) -%>
+<%- if tests_connections.any? -%>
+      connections: [<%= tests_connections.join(', ') %>]
+<%- end -%>
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/tests.md
 <%- if @include_mcp_server -%>
@@ -207,7 +225,7 @@ swarm:
       description: "Application performance profiling and bottleneck detection specialist"
       directory: .
       model: <%= @agent_models['performance'] || @default_model %>
-      connections: [models<%= ', views' unless @api_only %>]
+      connections: [models, database<%= ', views' unless @api_only %>]
       allowed_tools: [Read, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/performance.md
 <%- if !@api_only && File.directory?(Rails.root.join("app/views")) -%>
@@ -219,16 +237,17 @@ swarm:
       allowed_tools: [Read, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/design_review.md
 <%- end -%>
-<%- if @has_boorails -%>
 
     security:
-      description: "Application security auditing specialist powered by BooRails"
+      description: "Application security auditing<%= @has_boorails ? ' specialist powered by BooRails' : ' and hardening specialist' %>"
       directory: .
       model: <%= @agent_models['security'] || @default_model %>
-      connections: [<%= @api_only ? 'models, controllers, api' : 'models, controllers, views' %>]
+<%- security_connections = ['models', 'controllers'] -%>
+<%- security_connections << (@api_only ? 'api' : 'views') -%>
+<%- security_connections << 'tests' unless @skip_tests -%>
+      connections: [<%= security_connections.join(', ') %>]
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/security.md
-<%- end -%>
 
     documentation:
       description: "API documentation, YARD docs, and project documentation specialist"
