@@ -75,9 +75,9 @@ RSpec.describe ClaudeOnRails::SwarmBuilder do
         expect(architect[:connections]).to include('database')
       end
 
-      it 'adds database and security to models agent connections' do
+      it 'adds database to models agent connections' do
         models = instances[:models]
-        expect(models[:connections]).to include('database', 'security')
+        expect(models[:connections]).to include('database')
       end
     end
 

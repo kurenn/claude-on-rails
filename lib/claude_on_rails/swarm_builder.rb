@@ -105,14 +105,11 @@ module ClaudeOnRails
     end
 
     def build_models_agent
-      connections = ['database']
-      connections << 'security'
-
       agent = {
         description: 'ActiveRecord models, associations, validations, and migrations specialist',
         directory: './app/models',
         model: model_for('models'),
-        connections: connections,
+        connections: ['database'],
         allowed_tools: %w[Read Edit Write Bash Grep Glob LS],
         prompt_file: '.claude-on-rails/prompts/models.md'
       }
@@ -135,7 +132,6 @@ module ClaudeOnRails
     def build_controllers_agent
       connections = ['services']
       connections << 'api' if project_analysis[:api_only]
-      connections << 'security'
 
       {
         description: 'Rails controllers, routing, and request handling specialist',
@@ -153,7 +149,6 @@ module ClaudeOnRails
       connections << 'tailwind' if project_analysis[:has_tailwind]
       connections << 'i18n' if project_analysis[:has_i18n]
       connections << 'design_review'
-      connections << 'security'
 
       description = if project_analysis[:has_view_component]
                       'Rails views, layouts, partials, ViewComponent, and asset pipeline specialist'

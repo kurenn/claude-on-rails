@@ -31,9 +31,7 @@ swarm:
       description: "ActiveRecord models, associations, validations, and migrations specialist"
       directory: ./app/models
       model: <%= @agent_models['models'] || @default_model %>
-<%- models_connections = ['database'] -%>
-<%- models_connections << 'security' if agents.include?('security') -%>
-      connections: [<%= models_connections.join(', ') %>]
+      connections: [database]
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/models.md
 <%- if @include_mcp_server -%>
@@ -66,7 +64,6 @@ swarm:
 <%- connections = [] -%>
 <%- connections << 'services' if File.directory?(Rails.root.join("app/services")) -%>
 <%- connections << 'api' if @api_only && File.directory?(Rails.root.join("app/controllers/api")) -%>
-<%- connections << 'security' if agents.include?('security') -%>
       connections: [<%= connections.join(', ') %>]
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/controllers.md
@@ -91,7 +88,6 @@ swarm:
 <%- view_connections << 'tailwind' if @has_tailwind -%>
 <%- view_connections << 'i18n' if @has_i18n && File.directory?(Rails.root.join("config/locales")) -%>
 <%- view_connections << 'design_review' -%>
-<%- view_connections << 'security' if agents.include?('security') -%>
       connections: [<%= view_connections.join(', ') %>]
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/views.md
