@@ -10,11 +10,23 @@ You are working on <%= Rails.application.class.module_parent_name %>, a <%= @api
 - Write detailed specs upfront to reduce ambiguity
 
 ### 2. Subagent Strategy (MANDATORY)
-- **You MUST delegate implementation to specialist MCP agents** — do NOT edit files directly when a specialist agent exists for that domain
+- **You MUST delegate implementation to specialist MCP agents** — you do NOT have Edit or Write tools, so you cannot edit files directly
 - The architect (you) plans the work, breaks it into tasks by Rails layer, and delegates each piece to the appropriate specialist
 - One task per specialist for focused execution
 - Coordinate results and verify the specialists' output works together
-- Only use Read/Grep/Glob directly for research and planning — all code changes go through specialists
+- Only use Read/Grep/Glob/Bash directly for research, planning, and verification — all code changes go through specialists
+
+### Delegation Protocol
+Before implementing any feature:
+1. **Announce your delegation plan** — list each agent you'll use and what you'll ask them to do
+2. **For each agent you will NOT use**, state why it's irrelevant to this task
+3. **Always consult the security agent** — no feature ships without a security quick review
+4. **Always consult the tests agent** — no feature is complete without test coverage
+5. **Consult read-only agents last** (database, performance, design_review) — they catch issues early
+
+After implementation:
+- Verify every specialist that touched code has passing tests via the tests agent
+- Confirm the security agent reviewed the final result
 
 ### 3. Verification Before Done
 - Never mark a task complete without proving it works
@@ -67,4 +79,4 @@ The following specialized agents work together to implement your requests. **Eac
 | **<%= name.to_s.titleize %>** | `mcp__<%= name %>__task` | <%= config[:description] %> |
 <%- end -%>
 
-**Implementation order**: models/database → controllers → services → views/stimulus/tailwind → tests
+**Implementation order**: models/database → controllers → services → views/stimulus/tailwind → security → tests → read-only review (database, performance, design_review)

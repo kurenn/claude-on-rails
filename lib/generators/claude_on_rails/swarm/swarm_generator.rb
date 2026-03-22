@@ -93,7 +93,7 @@ module ClaudeOnRails
         say "Database agent: Enabled (#{@project_analysis[:database]})", :cyan
         say "Performance agent: Enabled", :cyan
         say "Design Review: #{@api_only ? 'Skipped (API-only)' : 'Enabled'}", :cyan
-        say "BooRails Security: #{@has_boorails ? 'Available' : 'Not installed'}", :cyan
+        say "Security agent: Enabled#{' (BooRails enhanced)' if @has_boorails}", :cyan
         say 'Documentation agent: Included', :cyan
 
         # Offer MCP setup if enabled but not available
@@ -288,7 +288,7 @@ module ClaudeOnRails
         list << 'i18n' if @has_i18n && File.directory?(Rails.root.join('config/locales'))
         list << 'design_review' if !@api_only && File.directory?(Rails.root.join('app/views'))
         list << 'devops' if File.directory?(Rails.root.join('config'))
-        list << 'security' if @has_boorails
+        list << 'security'
         list << 'performance'
         list << 'documentation'
 
